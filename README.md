@@ -42,4 +42,6 @@ priority.
 
 n = new
 
+e = edit
+
 q = quit

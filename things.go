@@ -18,6 +18,7 @@ type thing struct {
 	Priority int
 	Done     bool
 	content  string
+	path     string
 }
 
 func (t *thing) thingType() thingType {
@@ -69,9 +70,11 @@ func thingsLoad() {
 
 	for _, entry := range dir {
 
-		t := thing{}
+		t := thing{
+			path: path.Join(thingsDir, "things", entry.Name()),
+		}
 
-		data, err := os.ReadFile(path.Join(thingsDir, "things", entry.Name()))
+		data, err := os.ReadFile(t.path)
 		if err != nil {
 			log.Fatalln("Error:", err)
 		}

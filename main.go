@@ -86,6 +86,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "n":
 			return m, newThing()
 
+		case "e":
+			return m, editThing(things[m.cursor])
 		}
 	}
 

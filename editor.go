@@ -64,3 +64,19 @@ func newThing() tea.Cmd {
 		return editorFinishedMsg{err}
 	})
 }
+
+func editThing(t thing) tea.Cmd {
+
+	e := os.Getenv("EDITOR")
+
+	if e == "" {
+		e = "vim"
+	}
+
+	cmd := exec.Command(e, t.path)
+
+	return tea.ExecProcess(cmd, func(err error) tea.Msg {
+		thingsLoad()
+		return editorFinishedMsg{err}
+	})
+}
