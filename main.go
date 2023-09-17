@@ -71,6 +71,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor++
 			}
 
+		case "g":
+			m.cursor = 0
+
+		case "G":
+			m.cursor = len(things) - 1
+
 		case "enter", " ":
 			m.selected = &m.cursor
 
