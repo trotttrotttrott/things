@@ -6,14 +6,20 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/adrg/frontmatter"
+
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
-var thingsDir string
+var (
+	thingsDir  string
+	thingTypes map[string]thingType
+)
 
 type thing struct {
 	Title    string
@@ -23,10 +29,13 @@ type thing struct {
 	content  string
 }
 
+func (t *thing) thingType() thingType {
+	return thingTypes[t.Type]
+}
+
 type thingType struct {
 	description string
-	path        string
-	color       string
+	Color       string
 }
 
 type model struct {
@@ -46,6 +55,32 @@ func main() {
 	}
 
 	thingsDir = path.Join(home, ".things")
+
+	thingTypes = map[string]thingType{}
+
+	dir, err := os.ReadDir(path.Join(thingsDir, "types"))
+	if err != nil {
+		log.Fatalln("Error:", err)
+	}
+
+	for _, entry := range dir {
+
+		t := thingType{}
+
+		data, err := os.ReadFile(path.Join(thingsDir, "types", entry.Name()))
+		if err != nil {
+			log.Fatalln("Error:", err)
+		}
+
+		rest, err := frontmatter.Parse(bytes.NewReader(data), &t)
+		if err != nil {
+			log.Fatalln("Error:", err)
+		}
+
+		t.description = string(rest)
+
+		thingTypes[strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name()))] = t
+	}
 
 	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
@@ -142,7 +177,12 @@ func (m model) View() string {
 			checked = "x"
 		}
 
-		s += fmt.Sprintf("%s [%s] %s %v %v %v %s\n", cursor, checked, t.Title, t.Type, t.Priority, t.Done, strings.TrimSpace(t.content))
+		var style = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(t.thingType().Color))
+
+		s += fmt.Sprintf("%s [%s] ", cursor, checked)
+		s += style.Render(fmt.Sprintf("%s %v %v %v %s", t.Title, t.Type, t.Priority, t.Done, strings.TrimSpace(t.content)))
+		s += "\n"
 	}
 
 	return s
