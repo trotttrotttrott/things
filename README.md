@@ -37,3 +37,9 @@ Random, small task. Something otherwise untracked.
 
 You can assign things a positive integer to represent priority - 0 being highest
 priority.
+
+## Actions
+
+n = new
+
+q = quit

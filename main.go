@@ -1,16 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"path"
-	"path/filepath"
-	"sort"
 	"strings"
-
-	"github.com/adrg/frontmatter"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -19,28 +14,10 @@ import (
 var (
 	thingsDir  string
 	thingTypes map[string]thingType
+	things     []thing
 )
 
-type thing struct {
-	Title    string
-	Type     string
-	Priority int
-	Done     bool
-	content  string
-}
-
-func (t *thing) thingType() thingType {
-	return thingTypes[t.Type]
-}
-
-type thingType struct {
-	description string
-	Color       string
-}
-
 type model struct {
-	things []thing
-
 	cursor   int
 	selected *int
 
@@ -56,31 +33,9 @@ func main() {
 
 	thingsDir = path.Join(home, ".things")
 
-	thingTypes = map[string]thingType{}
+	typesInit()
 
-	dir, err := os.ReadDir(path.Join(thingsDir, "types"))
-	if err != nil {
-		log.Fatalln("Error:", err)
-	}
-
-	for _, entry := range dir {
-
-		t := thingType{}
-
-		data, err := os.ReadFile(path.Join(thingsDir, "types", entry.Name()))
-		if err != nil {
-			log.Fatalln("Error:", err)
-		}
-
-		rest, err := frontmatter.Parse(bytes.NewReader(data), &t)
-		if err != nil {
-			log.Fatalln("Error:", err)
-		}
-
-		t.description = string(rest)
-
-		thingTypes[strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name()))] = t
-	}
+	thingsLoad()
 
 	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
@@ -89,40 +44,7 @@ func main() {
 }
 
 func initialModel() model {
-
-	dir, err := os.ReadDir(path.Join(thingsDir, "things"))
-	if err != nil {
-		log.Fatalln("Error:", err)
-	}
-
-	var things []thing
-
-	for _, entry := range dir {
-
-		t := thing{}
-
-		data, err := os.ReadFile(path.Join(thingsDir, "things", entry.Name()))
-		if err != nil {
-			log.Fatalln("Error:", err)
-		}
-
-		rest, err := frontmatter.Parse(bytes.NewReader(data), &t)
-		if err != nil {
-			log.Fatalln("Error:", err)
-		}
-
-		t.content = string(rest)
-
-		things = append(things, t)
-	}
-
-	sort.Slice(things, func(i, j int) bool {
-		return things[i].Priority < things[j].Priority
-	})
-
-	return model{
-		things: things,
-	}
+	return model{}
 }
 
 func (m model) Init() tea.Cmd {
@@ -145,7 +67,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case "down", "j":
-			if m.cursor < len(m.things)-1 {
+			if m.cursor < len(things)-1 {
 				m.cursor++
 			}
 
@@ -154,6 +76,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "esc":
 			m.selected = nil
+
+		case "n":
+			return m, newThing()
 
 		}
 	}
@@ -165,7 +90,7 @@ func (m model) View() string {
 
 	s := ""
 
-	for i, t := range m.things {
+	for i, t := range things {
 
 		cursor := " "
 		if m.cursor == i {
