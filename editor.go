@@ -60,7 +60,6 @@ func newThing() tea.Cmd {
 	cmd := exec.Command(e, fname)
 
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
-		thingsLoad()
 		return editorFinishedMsg{err}
 	})
 }
@@ -76,7 +75,6 @@ func editThing(t thing) tea.Cmd {
 	cmd := exec.Command(e, t.path)
 
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
-		thingsLoad()
 		return editorFinishedMsg{err}
 	})
 }

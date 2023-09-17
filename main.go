@@ -14,12 +14,13 @@ import (
 var (
 	thingsDir  string
 	thingTypes map[string]thingType
-	things     []thing
 )
 
 type model struct {
 	cursor   int
 	selected *int
+
+	things []thing
 
 	err error
 }
@@ -35,8 +36,6 @@ func main() {
 
 	typesInit()
 
-	thingsLoad()
-
 	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		log.Fatalln("Error:", err)
@@ -44,7 +43,9 @@ func main() {
 }
 
 func initialModel() model {
-	return model{}
+	return model{
+		things: things(),
+	}
 }
 
 func (m model) Init() tea.Cmd {
@@ -67,7 +68,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case "down", "j":
-			if m.cursor < len(things)-1 {
+			if m.cursor < len(m.things)-1 {
 				m.cursor++
 			}
 
@@ -75,7 +76,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.cursor = 0
 
 		case "G":
-			m.cursor = len(things) - 1
+			m.cursor = len(m.things) - 1
 
 		case "enter", " ":
 			m.selected = &m.cursor
@@ -87,8 +88,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, newThing()
 
 		case "e":
-			return m, editThing(things[m.cursor])
+			return m, editThing(m.things[m.cursor])
 		}
+
+	case editorFinishedMsg:
+		if msg.err != nil {
+			m.err = msg.err
+		}
+		m.things = things()
 	}
 
 	return m, nil
@@ -98,7 +105,7 @@ func (m model) View() string {
 
 	s := ""
 
-	for i, t := range things {
+	for i, t := range m.things {
 
 		cursor := " "
 		if m.cursor == i {

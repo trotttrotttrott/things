@@ -59,14 +59,12 @@ func typesInit() {
 	}
 }
 
-func thingsLoad() {
+func things() (things []thing) {
 
 	dir, err := os.ReadDir(path.Join(thingsDir, "things"))
 	if err != nil {
 		log.Fatalln("Error:", err)
 	}
-
-	var thngs []thing
 
 	for _, entry := range dir {
 
@@ -86,12 +84,12 @@ func thingsLoad() {
 
 		t.content = string(rest)
 
-		thngs = append(thngs, t)
+		things = append(things, t)
 	}
 
-	sort.Slice(thngs, func(i, j int) bool {
-		return thngs[i].Priority < thngs[j].Priority
+	sort.Slice(things, func(i, j int) bool {
+		return things[i].Priority < things[j].Priority
 	})
 
-	things = thngs
+	return things
 }
