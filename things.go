@@ -82,6 +82,10 @@ func things() (things []thing) {
 			log.Fatalln("Error:", err)
 		}
 
+		if t.Done {
+			continue
+		}
+
 		t.content = string(rest)
 
 		things = append(things, t)
