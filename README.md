@@ -11,6 +11,7 @@ When you create a new thing, a file is created and it's opened with `EDITOR`.
 
 ```
 ---
+title: Thing
 type: chore
 priority: 3
 done: false
@@ -42,6 +43,6 @@ priority.
 
 n = new
 
-e = edit
+enter = edit
 
 q = quit

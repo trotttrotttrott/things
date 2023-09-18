@@ -79,17 +79,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "G":
 			m.cursor = len(m.things) - 1
 
-		case "enter":
-			t := m.things[m.cursor]
-			b := filepath.Base(t.path)
-			timeThing(strings.TrimSuffix(b, filepath.Ext(b)))
-			return m, editThing(t)
-
 		case "n":
 			t := time.Now().UTC()
 			fileName := t.Format("20060102150405")
 			timeThing(fileName)
 			return m, newThing(fileName)
+
+		case "enter":
+			t := m.things[m.cursor]
+			b := filepath.Base(t.path)
+			timeThing(strings.TrimSuffix(b, filepath.Ext(b)))
+			return m, editThing(t)
 
 		}
 
