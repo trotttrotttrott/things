@@ -109,7 +109,7 @@ func (m model) View() string {
 			Foreground(lipgloss.Color(t.thingType().Color))
 
 		s += fmt.Sprintf("%s ", cursor)
-		s += style.Render(fmt.Sprintf("%s %v %v %v", t.Title, t.Type, t.Priority, t.Done))
+		s += style.Render(fmt.Sprintf("%s %v | %v", t.Title, t.Type, t.Priority))
 		s += "\n"
 	}
 
