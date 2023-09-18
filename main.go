@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -121,7 +120,7 @@ func (m model) View() string {
 			Foreground(lipgloss.Color(t.thingType().Color))
 
 		s += fmt.Sprintf("%s [%s] ", cursor, checked)
-		s += style.Render(fmt.Sprintf("%s %v %v %v %s", t.Title, t.Type, t.Priority, t.Done, strings.TrimSpace(t.content)))
+		s += style.Render(fmt.Sprintf("%s %v %v %v", t.Title, t.Type, t.Priority, t.Done))
 		s += "\n"
 	}
 
