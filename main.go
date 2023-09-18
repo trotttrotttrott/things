@@ -16,8 +16,7 @@ var (
 )
 
 type model struct {
-	cursor   int
-	selected *int
+	cursor int
 
 	things []thing
 
@@ -77,17 +76,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "G":
 			m.cursor = len(m.things) - 1
 
-		case "enter", " ":
-			m.selected = &m.cursor
-
-		case "esc":
-			m.selected = nil
+		case "enter":
+			return m, editThing(m.things[m.cursor])
 
 		case "n":
 			return m, newThing()
 
-		case "e":
-			return m, editThing(m.things[m.cursor])
 		}
 
 	case editorFinishedMsg:
@@ -111,15 +105,10 @@ func (m model) View() string {
 			cursor = ">"
 		}
 
-		checked := " "
-		if m.selected != nil && *m.selected == i {
-			checked = "x"
-		}
-
 		var style = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(t.thingType().Color))
 
-		s += fmt.Sprintf("%s [%s] ", cursor, checked)
+		s += fmt.Sprintf("%s ", cursor)
 		s += style.Render(fmt.Sprintf("%s %v %v %v", t.Title, t.Type, t.Priority, t.Done))
 		s += "\n"
 	}
