@@ -105,11 +105,21 @@ func (m model) View() string {
 			cursor = ">"
 		}
 
-		var style = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(t.thingType().Color))
+		ttt, ttp, tpr := t.Title, t.Type, fmt.Sprintf("%d", t.Priority)
+		if len(t.Title) > 50 {
+			ttt = fmt.Sprintf("%s...", t.Title[0:47])
+		}
+		if len(t.Type) > 15 {
+			ttp = fmt.Sprintf("%s...", t.Type[0:12])
+		}
+		if len(tpr) > 4 {
+			tpr = fmt.Sprintf("%s+", tpr[0:5])
+		}
 
 		s += fmt.Sprintf("%s ", cursor)
-		s += style.Render(fmt.Sprintf("%s %v | %v", t.Title, t.Type, t.Priority))
+		s += lipgloss.NewStyle().
+			Foreground(lipgloss.Color(t.thingType().Color)).
+			Render(fmt.Sprintf("%-50s | %-15v | %5v", ttt, ttp, tpr))
 		s += "\n"
 	}
 
