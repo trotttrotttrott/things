@@ -8,20 +8,16 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type editorFinishedMsg struct{ err error }
 
-func newThing() tea.Cmd {
-
-	t := time.Now()
+func newThing(thingName string) tea.Cmd {
 
 	fpath := path.Join(thingsDir, "things")
-
-	fname := filepath.Join(fpath, fmt.Sprintf("%s.md", t.Format("20060102150405")))
+	fname := filepath.Join(fpath, fmt.Sprintf("%s.md", thingName))
 
 	f, err := os.Create(fname)
 	if err != nil {

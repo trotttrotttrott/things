@@ -5,6 +5,9 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -77,14 +80,21 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.cursor = len(m.things) - 1
 
 		case "enter":
-			return m, editThing(m.things[m.cursor])
+			t := m.things[m.cursor]
+			b := filepath.Base(t.path)
+			timeThing(strings.TrimSuffix(b, filepath.Ext(b)))
+			return m, editThing(t)
 
 		case "n":
-			return m, newThing()
+			t := time.Now().UTC()
+			fileName := t.Format("20060102150405")
+			timeThing(fileName)
+			return m, newThing(fileName)
 
 		}
 
 	case editorFinishedMsg:
+		stopThingTime()
 		if msg.err != nil {
 			m.err = msg.err
 		}
