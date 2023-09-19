@@ -62,4 +62,6 @@ G = set cursor to last thing
 
 d = toggle show done things
 
+\# = toggle line numbers
+
 q = quit

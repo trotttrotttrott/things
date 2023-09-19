@@ -22,6 +22,7 @@ type model struct {
 	cursor   int
 	things   []thing
 	showDone bool
+	lineNum  bool
 	err      error
 }
 
@@ -83,6 +84,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.things = things(m.showDone)
 			m.cursor = 0
 
+		case "#":
+			m.lineNum = !m.lineNum
+
 		case "n":
 			t := time.Now().UTC()
 			fileName := t.Format("20060102150405")
@@ -119,22 +123,30 @@ func (m model) View() string {
 			cursor = ">"
 		}
 
-		ttt, ttp, tpr := t.Title, t.Type, fmt.Sprintf("%d ", t.Priority)
-		if len(t.Title) > 50 {
-			ttt = fmt.Sprintf("%s...", t.Title[0:47])
-		}
-		if len(t.Type) > 15 {
-			ttp = fmt.Sprintf("%s...", t.Type[0:12])
-		}
-		if len(tpr) > 5 {
-			tpr = fmt.Sprintf("%s+", tpr[0:4])
+		s += fmt.Sprintf("%s ", cursor)
+
+		maxTitleLen, maxTypeLen, maxPriorityLen := 50, 15, 5
+		numWidth := len(fmt.Sprintf("%v", len(m.things)))
+		if m.lineNum {
+			maxTitleLen = maxTitleLen - numWidth - 1
+			s += fmt.Sprintf("%*v ", numWidth, i+1)
 		}
 
-		s += fmt.Sprintf("%s ", cursor)
+		ttt, ttp, tpr := t.Title, t.Type, fmt.Sprintf("%d ", t.Priority)
+		if len(t.Title) > maxTitleLen {
+			ttt = fmt.Sprintf("%s...", t.Title[0:maxTitleLen-3])
+		}
+		if len(t.Type) > maxTypeLen {
+			ttp = fmt.Sprintf("%s...", t.Type[0:maxTypeLen-3])
+		}
+		if len(tpr) > maxPriorityLen {
+			tpr = fmt.Sprintf("%s+", tpr[0:maxPriorityLen-1])
+		}
+
 		s += lipgloss.NewStyle().
 			Foreground(lipgloss.Color(t.thingType().Color)).
 			Faint(t.Pause).
-			Render(fmt.Sprintf("%-50s | %-15v | %5v| %sd | %s", ttt, ttp, tpr, t.age(), timeSpentOnThing(t.path)))
+			Render(fmt.Sprintf("%-*s | %-*v | %*v| %sd | %s", maxTitleLen, ttt, maxTypeLen, ttp, maxPriorityLen, tpr, t.age(), timeSpentOnThing(t.path)))
 		s += "\n"
 	}
 
