@@ -2,12 +2,14 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/adrg/frontmatter"
 )
@@ -23,6 +25,16 @@ type thing struct {
 
 func (t *thing) thingType() thingType {
 	return thingTypes[t.Type]
+}
+
+func (t *thing) age() string {
+	n := time.Now().UTC()
+	b := filepath.Base(t.path)
+	tm, err := time.Parse("20060102150405", strings.TrimSuffix(b, filepath.Ext(b)))
+	if err != nil {
+		log.Fatalln("Error:", err)
+	}
+	return fmt.Sprintf("%.2f", n.Sub(tm).Hours()/24)
 }
 
 type thingType struct {
