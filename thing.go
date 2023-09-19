@@ -19,6 +19,7 @@ type thing struct {
 	Type     string
 	Priority int
 	Done     bool
+	Pause    bool
 	content  string
 	path     string
 }

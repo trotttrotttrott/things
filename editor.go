@@ -35,7 +35,6 @@ func newThing(thingName string) tea.Cmd {
 			"title: Thing",
 			fmt.Sprintf("type: # %s", strings.Join(typeKeys, " ")),
 			"priority: 0",
-			"done: false",
 			"---",
 			"",
 		}, "\n"))

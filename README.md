@@ -14,7 +14,6 @@ When you create a new thing, a file is created and it's opened with `EDITOR`.
 title: Thing
 type: chore
 priority: 3
-done: false
 ---
 
 Respond to that email from so and so.
@@ -38,6 +37,14 @@ Random, small task. Something otherwise untracked.
 
 You can assign things a positive integer to represent priority - 0 being highest
 priority.
+
+### Done and Pause
+
+Add `done: true` to a thing to mark it as done. It will be removed from the
+list.
+
+Add `pause: true` to pause it. This just dims its color a little to indicate you
+can skip it for now.
 
 ## Actions
 

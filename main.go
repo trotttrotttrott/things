@@ -133,6 +133,7 @@ func (m model) View() string {
 		s += fmt.Sprintf("%s ", cursor)
 		s += lipgloss.NewStyle().
 			Foreground(lipgloss.Color(t.thingType().Color)).
+			Faint(t.Pause).
 			Render(fmt.Sprintf("%-50s | %-15v | %5v| %sd | %s", ttt, ttp, tpr, t.age(), timeSpentOnThing(t.path)))
 		s += "\n"
 	}
