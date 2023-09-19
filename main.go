@@ -19,11 +19,10 @@ var (
 )
 
 type model struct {
-	cursor int
-
-	things []thing
-
-	err error
+	cursor   int
+	things   []thing
+	showDone bool
+	err      error
 }
 
 func main() {
@@ -45,7 +44,7 @@ func main() {
 
 func initialModel() model {
 	return model{
-		things: things(),
+		things: things(false),
 	}
 }
 
@@ -79,6 +78,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "G":
 			m.cursor = len(m.things) - 1
 
+		case "d":
+			m.showDone = !m.showDone
+			m.things = things(m.showDone)
+			m.cursor = 0
+
 		case "n":
 			t := time.Now().UTC()
 			fileName := t.Format("20060102150405")
@@ -98,7 +102,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.err != nil {
 			m.err = msg.err
 		}
-		m.things = things()
+		m.things = things(m.showDone)
 	}
 
 	return m, nil

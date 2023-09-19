@@ -37,7 +37,7 @@ func (t *thing) age() string {
 	return fmt.Sprintf("%.2f", n.Sub(tm).Hours()/24)
 }
 
-func things() (things []thing) {
+func things(showDone bool) (things []thing) {
 
 	dir, err := os.ReadDir(path.Join(thingsDir, "things"))
 	if err != nil {
@@ -60,7 +60,7 @@ func things() (things []thing) {
 			log.Fatalln("Error:", err)
 		}
 
-		if t.Done {
+		if t.Done == !showDone {
 			continue
 		}
 
@@ -69,9 +69,15 @@ func things() (things []thing) {
 		things = append(things, t)
 	}
 
-	sort.Slice(things, func(i, j int) bool {
-		return things[i].Priority < things[j].Priority
-	})
+	if !showDone {
+		sort.Slice(things, func(i, j int) bool {
+			return things[i].Priority < things[j].Priority
+		})
+	} else {
+		sort.Slice(things, func(i, j int) bool {
+			return things[i].path > things[j].path
+		})
+	}
 
 	return things
 }

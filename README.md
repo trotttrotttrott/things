@@ -41,8 +41,18 @@ priority.
 
 ## Actions
 
-n = new
+n = open new thing in $EDITOR
 
-enter = edit
+enter = open thing in $EDITOR
+
+k = cursor up
+
+j = cursor down
+
+g = set cursor to first thing
+
+G = set cursor to last thing
+
+d = toggle show done things
 
 q = quit
