@@ -37,40 +37,6 @@ func (t *thing) age() string {
 	return fmt.Sprintf("%.2f", n.Sub(tm).Hours()/24)
 }
 
-type thingType struct {
-	description string
-	Color       string
-}
-
-func typesInit() {
-
-	thingTypes = map[string]thingType{}
-
-	dir, err := os.ReadDir(path.Join(thingsDir, "types"))
-	if err != nil {
-		log.Fatalln("Error:", err)
-	}
-
-	for _, entry := range dir {
-
-		t := thingType{}
-
-		data, err := os.ReadFile(path.Join(thingsDir, "types", entry.Name()))
-		if err != nil {
-			log.Fatalln("Error:", err)
-		}
-
-		rest, err := frontmatter.Parse(bytes.NewReader(data), &t)
-		if err != nil {
-			log.Fatalln("Error:", err)
-		}
-
-		t.description = string(rest)
-
-		thingTypes[strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name()))] = t
-	}
-}
-
 func things() (things []thing) {
 
 	dir, err := os.ReadDir(path.Join(thingsDir, "things"))
