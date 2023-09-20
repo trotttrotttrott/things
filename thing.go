@@ -35,7 +35,7 @@ func (t *thing) age() string {
 	if err != nil {
 		log.Fatalln("Error:", err)
 	}
-	return fmt.Sprintf("%.2f", n.Sub(tm).Hours()/24)
+	return fmt.Sprintf("%.1f", n.Sub(tm).Hours()/24)
 }
 
 func things(showDone bool) (things []thing) {
