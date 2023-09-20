@@ -46,6 +46,13 @@ list.
 Add `pause: true` to pause it. This just dims its color a little to indicate you
 can skip it for now.
 
+### Time Tracking
+
+The amount of time a thing is open in your editor is tracked with csv files in
+`~/.things/time/`. Each thing has a file here as well. A row is added with the
+open and close time every time you open a thing in order to calculate the
+cumulative time you've spent working on a thing.
+
 ## Actions
 
 n = open new thing in $EDITOR
