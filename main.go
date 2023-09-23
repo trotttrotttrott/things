@@ -102,6 +102,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.cursor = 0
 		case "G":
 			m.cursor = len(m.things) - 1
+		case "ctrl+u":
+			if m.cursor-5 > 0 {
+				m.cursor -= 5
+			} else {
+				m.cursor = 0
+			}
+		case "ctrl+d":
+			if m.cursor+5 < len(m.things)-1 {
+				m.cursor += 5
+			} else {
+				m.cursor = len(m.things) - 1
+			}
 
 		// toggle done
 		case "d":
