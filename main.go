@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -23,6 +24,7 @@ type model struct {
 	things   []thing
 	showDone bool
 	lineNum  bool
+	sort     string
 	err      error
 }
 
@@ -44,13 +46,36 @@ func main() {
 }
 
 func initialModel() model {
-	return model{
+	m := model{
 		things: things(false),
+		sort:   "priority",
 	}
+	m.sortThings()
+	return m
 }
 
 func (m model) Init() tea.Cmd {
 	return nil
+}
+
+func (m *model) sortThings() {
+	switch m.sort {
+	case "age":
+		sort.Slice(m.things, func(i, j int) bool {
+			return m.things[i].path > m.things[j].path
+		})
+	case "priority":
+		sort.Slice(m.things, func(i, j int) bool {
+			return m.things[i].Priority < m.things[j].Priority
+		})
+	case "type":
+		sort.Slice(m.things, func(i, j int) bool {
+			if m.things[i].Type != m.things[j].Type {
+				return m.things[i].Type < m.things[j].Type
+			}
+			return m.things[i].Priority < m.things[j].Priority
+		})
+	}
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -60,39 +85,51 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.String() {
 
+		// quit
 		case "ctrl+c", "q":
 			return m, tea.Quit
 
+		// navigation
 		case "up", "k":
 			if m.cursor > 0 {
 				m.cursor--
 			}
-
 		case "down", "j":
 			if m.cursor < len(m.things)-1 {
 				m.cursor++
 			}
-
 		case "g":
 			m.cursor = 0
-
 		case "G":
 			m.cursor = len(m.things) - 1
 
+		// toggle done
 		case "d":
 			m.showDone = !m.showDone
 			m.things = things(m.showDone)
 			m.cursor = 0
 
+		// display
 		case "#":
 			m.lineNum = !m.lineNum
 
+		// sort
+		case "a":
+			m.sort = "age"
+			m.sortThings()
+		case "p":
+			m.sort = "priority"
+			m.sortThings()
+		case "t":
+			m.sort = "type"
+			m.sortThings()
+
+		// edit
 		case "n":
 			t := time.Now().UTC()
 			fileName := t.Format("20060102150405")
 			timeThing(fileName)
 			return m, newThing(fileName)
-
 		case "enter":
 			t := m.things[m.cursor]
 			b := filepath.Base(t.path)

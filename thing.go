@@ -7,7 +7,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"sort"
 	"strings"
 	"time"
 
@@ -68,16 +67,6 @@ func things(showDone bool) (things []thing) {
 		t.content = string(rest)
 
 		things = append(things, t)
-	}
-
-	if !showDone {
-		sort.Slice(things, func(i, j int) bool {
-			return things[i].Priority < things[j].Priority
-		})
-	} else {
-		sort.Slice(things, func(i, j int) bool {
-			return things[i].path > things[j].path
-		})
 	}
 
 	return things

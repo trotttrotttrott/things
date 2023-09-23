@@ -71,4 +71,10 @@ d = toggle show done things
 
 \# = toggle line numbers
 
+a = sort things by age
+
+p = sort things by priority (default)
+
+t = sort things by type and priority
+
 q = quit
