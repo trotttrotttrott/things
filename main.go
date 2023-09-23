@@ -156,6 +156,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.err = msg.err
 		}
 		m.things = things(m.showDone)
+		m.sortThings()
 	}
 
 	return m, nil
