@@ -19,6 +19,7 @@ type thing struct {
 	Priority int
 	Done     bool
 	Pause    bool
+	Today    bool
 	content  string
 	path     string
 }
@@ -37,7 +38,7 @@ func (t *thing) age() string {
 	return fmt.Sprintf("%.1f", n.Sub(tm).Hours()/24)
 }
 
-func things(showDone bool) (things []thing) {
+func things(filter string) (things []thing) {
 
 	dir, err := os.ReadDir(path.Join(thingsDir, "things"))
 	if err != nil {
@@ -60,8 +61,23 @@ func things(showDone bool) (things []thing) {
 			log.Fatalln("Error:", err)
 		}
 
-		if t.Done == !showDone {
-			continue
+		switch filter {
+		case "done":
+			if !t.Done {
+				continue
+			}
+		case "pause":
+			if !t.Pause {
+				continue
+			}
+		case "today":
+			if !t.Today {
+				continue
+			}
+		default:
+			if t.Done {
+				continue
+			}
 		}
 
 		t.content = string(rest)

@@ -20,12 +20,12 @@ var (
 )
 
 type model struct {
-	cursor   int
-	things   []thing
-	showDone bool
-	lineNum  bool
-	sort     string
-	err      error
+	cursor  int
+	things  []thing
+	sort    string
+	filter  string
+	lineNum bool
+	err     error
 }
 
 func main() {
@@ -47,7 +47,7 @@ func main() {
 
 func initialModel() model {
 	m := model{
-		things: things(false),
+		things: things(""),
 		sort:   "priority",
 	}
 	m.sortThings()
@@ -78,16 +78,18 @@ func (m *model) sortThings() {
 	}
 }
 
+func (m *model) filterThings() {
+	m.things = things(m.filter)
+	m.sortThings()
+	m.cursor = 0
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.KeyMsg:
 
 		switch msg.String() {
-
-		// quit
-		case "ctrl+c", "q":
-			return m, tea.Quit
 
 		// navigation
 		case "up", "k":
@@ -98,10 +100,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor < len(m.things)-1 {
 				m.cursor++
 			}
-		case "g":
-			m.cursor = 0
-		case "G":
-			m.cursor = len(m.things) - 1
 		case "ctrl+u":
 			if m.cursor-5 > 0 {
 				m.cursor -= 5
@@ -114,16 +112,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				m.cursor = len(m.things) - 1
 			}
-
-		// toggle done
-		case "d":
-			m.showDone = !m.showDone
-			m.things = things(m.showDone)
+		case "g":
 			m.cursor = 0
+		case "G":
+			m.cursor = len(m.things) - 1
 
-		// display
-		case "#":
-			m.lineNum = !m.lineNum
+		// filter
+		case "A":
+			m.filter = ""
+			m.filterThings()
+		case "D":
+			m.filter = "done"
+			m.filterThings()
+		case "P":
+			m.filter = "pause"
+			m.filterThings()
+		case "T":
+			m.filter = "today"
+			m.filterThings()
 
 		// sort
 		case "a":
@@ -135,6 +141,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "t":
 			m.sort = "type"
 			m.sortThings()
+
+		// display
+		case "#":
+			m.lineNum = !m.lineNum
 
 		// edit
 		case "n":
@@ -148,6 +158,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			timeThing(strings.TrimSuffix(b, filepath.Ext(b)))
 			return m, editThing(t)
 
+		// quit
+		case "ctrl+c", "q":
+			return m, tea.Quit
+
 		}
 
 	case editorFinishedMsg:
@@ -155,7 +169,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.err != nil {
 			m.err = msg.err
 		}
-		m.things = things(m.showDone)
+		m.things = things(m.filter)
 		m.sortThings()
 	}
 
@@ -196,6 +210,7 @@ func (m model) View() string {
 		s += lipgloss.NewStyle().
 			Foreground(lipgloss.Color(t.thingType().Color)).
 			Faint(t.Pause).
+			Bold(t.Today).
 			Render(fmt.Sprintf("%-*s | %-*v | %*v| %sd | %s", maxTitleLen, ttt, maxTypeLen, ttp, maxPriorityLen, tpr, t.age(), timeSpentOnThing(t.path)))
 		s += "\n"
 	}

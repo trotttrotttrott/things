@@ -38,13 +38,18 @@ Random, small task. Something otherwise untracked.
 You can assign things a positive integer to represent priority - 0 being highest
 priority.
 
-### Done and Pause
+### Done, Pause, Today
 
 Add `done: true` to a thing to mark it as done. It will be removed from the
 list.
 
 Add `pause: true` to pause it. This just dims its color a little to indicate you
 can skip it for now.
+
+Add `today: true` to indicate that thing needs to be addressed today. These will
+be in bold.
+
+You can filter by each of these. This is documented below.
 
 ### Time Tracking
 
@@ -55,21 +60,32 @@ cumulative time you've spent working on a thing.
 
 ## Actions
 
-n = open new thing in $EDITOR
-
-enter = open thing in $EDITOR
+```
+// navigation
 
 k = cursor up
 
 j = cursor down
 
-g = set cursor to first thing
+ctrl+u = cursor up 5
 
-G = set cursor to last thing
+ctrl+d = cursor down 5
 
-d = toggle show done things
+g = set cursor to first
 
-\# = toggle line numbers
+G = set cursor to last
+
+// filter
+
+A = clear filter (default)
+
+D = done: true
+
+P = pause: true
+
+T = today: true
+
+// sort
 
 a = sort things by age
 
@@ -77,4 +93,17 @@ p = sort things by priority (default)
 
 t = sort things by type and priority
 
+// display
+
+# = toggle line numbers
+
+// edit
+
+n = open new thing in $EDITOR
+
+enter = open thing in $EDITOR
+
+// quit
+
 q = quit
+```
