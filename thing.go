@@ -35,7 +35,14 @@ func (t *thing) age() string {
 	if err != nil {
 		log.Fatalln("Error:", err)
 	}
-	return fmt.Sprintf("%.1f", n.Sub(tm).Hours()/24)
+
+	dur := n.Sub(tm).Hours() / 24
+	switch {
+	case dur >= 1000:
+		return "+k"
+	default:
+		return fmt.Sprintf("%d", int(dur))
+	}
 }
 
 func things(filter string) (things []thing) {

@@ -211,7 +211,7 @@ func (m model) View() string {
 			Foreground(lipgloss.Color(t.thingType().Color)).
 			Faint(t.Pause).
 			Bold(t.Today).
-			Render(fmt.Sprintf("%-*s | %-*v | %*v| %sd | %s", maxTitleLen, ttt, maxTypeLen, ttp, maxPriorityLen, tpr, t.age(), timeSpentOnThing(t.path)))
+			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s", maxTitleLen, ttt, maxTypeLen, ttp, maxPriorityLen, tpr, 3, t.age(), timeSpentOnThing(t.path)))
 		s += "\n"
 	}
 
