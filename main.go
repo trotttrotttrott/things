@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -25,6 +26,8 @@ type model struct {
 	filter     string
 	thingTypes map[string]thingType
 	lineNum    bool
+	modes      []string
+	mode       int
 	err        error
 }
 
@@ -51,6 +54,7 @@ func initialModel() model {
 		things:     things(""),
 		sort:       "priority",
 		thingTypes: thingTypes(),
+		modes:      []string{"thing", "type"},
 	}
 	m.sortThings()
 	return m
@@ -90,6 +94,16 @@ func (m *model) thingTypeKeys() (typeKeys []string) {
 	for k := range m.thingTypes {
 		typeKeys = append(typeKeys, k)
 	}
+	sort.Strings(typeKeys)
+	return
+}
+
+func (m *model) maxTypeLen() (mx int) {
+	for _, t := range m.thingTypeKeys() {
+		if len(t) > mx {
+			mx = len(t)
+		}
+	}
 	return
 }
 
@@ -97,6 +111,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.KeyMsg:
+
+		var cursorLimit int
+		switch m.modes[m.mode] {
+		case "thing":
+			cursorLimit = len(m.things)
+		case "type":
+			cursorLimit = len(m.thingTypes)
+		}
 
 		switch msg.String() {
 
@@ -106,7 +128,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor--
 			}
 		case "down", "j":
-			if m.cursor < len(m.things)-1 {
+			if m.cursor < cursorLimit-1 {
 				m.cursor++
 			}
 		case "ctrl+u":
@@ -116,15 +138,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor = 0
 			}
 		case "ctrl+d":
-			if m.cursor+5 < len(m.things)-1 {
+			if m.cursor+5 < cursorLimit-1 {
 				m.cursor += 5
 			} else {
-				m.cursor = len(m.things) - 1
+				m.cursor = cursorLimit - 1
 			}
 		case "g":
 			m.cursor = 0
 		case "G":
-			m.cursor = len(m.things) - 1
+			m.cursor = cursorLimit - 1
+
+		// modes
+		case ">":
+			m.mode = (m.mode + 1) % len(m.modes)
+			m.cursor = 0
 
 		// filter
 		case "A":
@@ -157,15 +184,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// edit
 		case "n":
-			t := time.Now().UTC()
-			fileName := t.Format("20060102150405")
-			timeThing(fileName)
-			return m, newThing(fileName, m.thingTypeKeys())
+			if m.modes[m.mode] == "thing" {
+				t := time.Now().UTC()
+				fileName := t.Format("20060102150405")
+				timeThing(fileName)
+				return m, newThing(fileName, m.thingTypeKeys())
+			}
 		case "enter":
-			t := m.things[m.cursor]
-			b := filepath.Base(t.path)
-			timeThing(strings.TrimSuffix(b, filepath.Ext(b)))
-			return m, editThing(t)
+			if m.modes[m.mode] == "thing" {
+				t := m.things[m.cursor]
+				b := filepath.Base(t.path)
+				timeThing(strings.TrimSuffix(b, filepath.Ext(b)))
+				return m, editThing(t)
+			}
 
 		// quit
 		case "ctrl+c", "q":
@@ -189,39 +220,69 @@ func (m model) View() string {
 
 	s := ""
 
-	for i, t := range m.things {
+	switch m.modes[m.mode] {
 
-		cursor := " "
-		if m.cursor == i {
-			cursor = ">"
+	case "thing":
+
+		for i, t := range m.things {
+
+			cursor := " "
+			if m.cursor == i {
+				cursor = ">"
+			}
+
+			s += fmt.Sprintf("%s ", cursor)
+
+			maxTitleLen, maxPriorityLen := 50, 5
+			if m.lineNum {
+				numWidth := len(fmt.Sprintf("%v", len(m.things)))
+				maxTitleLen = maxTitleLen - numWidth - 1
+				s += fmt.Sprintf("%*v ", numWidth, i+1)
+			}
+
+			ttt, ttp, tpr := t.Title, t.Type, fmt.Sprintf("%d ", t.Priority)
+			if len(t.Title) > maxTitleLen {
+				ttt = fmt.Sprintf("%s...", t.Title[0:maxTitleLen-3])
+			}
+			if len(tpr) > maxPriorityLen {
+				tpr = fmt.Sprintf("%s+", tpr[0:maxPriorityLen-1])
+			}
+
+			s += lipgloss.NewStyle().
+				Foreground(lipgloss.Color(m.thingTypes[t.Type].Color)).
+				Faint(t.Pause).
+				Bold(t.Today).
+				Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s", maxTitleLen, ttt, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.age(), timeSpentOnThing(t.path)))
+			s += "\n"
 		}
 
-		s += fmt.Sprintf("%s ", cursor)
+	case "type":
 
-		maxTitleLen, maxTypeLen, maxPriorityLen := 50, 15, 5
-		numWidth := len(fmt.Sprintf("%v", len(m.things)))
-		if m.lineNum {
-			maxTitleLen = maxTitleLen - numWidth - 1
-			s += fmt.Sprintf("%*v ", numWidth, i+1)
-		}
+		for i, t := range m.thingTypeKeys() {
 
-		ttt, ttp, tpr := t.Title, t.Type, fmt.Sprintf("%d ", t.Priority)
-		if len(t.Title) > maxTitleLen {
-			ttt = fmt.Sprintf("%s...", t.Title[0:maxTitleLen-3])
-		}
-		if len(t.Type) > maxTypeLen {
-			ttp = fmt.Sprintf("%s...", t.Type[0:maxTypeLen-3])
-		}
-		if len(tpr) > maxPriorityLen {
-			tpr = fmt.Sprintf("%s+", tpr[0:maxPriorityLen-1])
-		}
+			cursor := " "
+			if m.cursor == i {
+				cursor = ">"
+			}
 
-		s += lipgloss.NewStyle().
-			Foreground(lipgloss.Color(m.thingTypes[t.Type].Color)).
-			Faint(t.Pause).
-			Bold(t.Today).
-			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s", maxTitleLen, ttt, maxTypeLen, ttp, maxPriorityLen, tpr, 3, t.age(), timeSpentOnThing(t.path)))
-		s += "\n"
+			s += fmt.Sprintf("%s ", cursor)
+
+			if m.lineNum {
+				numWidth := len(fmt.Sprintf("%v", len(m.things)))
+				s += fmt.Sprintf("%*v ", numWidth, i+1)
+			}
+
+			description := regexp.MustCompile(`\n+`).ReplaceAllString(strings.TrimSpace(m.thingTypes[t].description), "...")
+			if len(description) > 50 {
+				description = fmt.Sprintf("%s...", description[0:50])
+			}
+
+			s += lipgloss.NewStyle().
+				Foreground(lipgloss.Color(m.thingTypes[t].Color)).
+				Render(fmt.Sprintf("%-*s | %s", m.maxTypeLen(), t, description))
+			s += "\n"
+
+		}
 	}
 
 	return s
