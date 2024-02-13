@@ -14,26 +14,21 @@ import (
 
 type editorFinishedMsg struct{ err error }
 
-func newThing(thingName string) tea.Cmd {
+func newThing(fileName string, thingTypeKeys []string) tea.Cmd {
 
 	fpath := path.Join(thingsDir, "things")
-	fname := filepath.Join(fpath, fmt.Sprintf("%s.md", thingName))
+	fname := filepath.Join(fpath, fmt.Sprintf("%s.md", fileName))
 
 	f, err := os.Create(fname)
 	if err != nil {
 		log.Fatalln("Error:", err)
 	}
 
-	typeKeys := []string{}
-	for k := range thingTypes {
-		typeKeys = append(typeKeys, k)
-	}
-
 	_, err = f.WriteString(strings.Join(
 		[]string{
 			"---",
 			"title: Thing",
-			fmt.Sprintf("type: # %s", strings.Join(typeKeys, " ")),
+			fmt.Sprintf("type: # %s", strings.Join(thingTypeKeys, " ")),
 			"priority: 0",
 			"---",
 			"",

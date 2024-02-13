@@ -16,14 +16,14 @@ type thingType struct {
 	Color       string
 }
 
-func typesInit() {
-
-	thingTypes = map[string]thingType{}
+func thingTypes() map[string]thingType {
 
 	dir, err := os.ReadDir(path.Join(thingsDir, "types"))
 	if err != nil {
 		log.Fatalln("Error:", err)
 	}
+
+	thingTypes := make(map[string]thingType)
 
 	for _, entry := range dir {
 
@@ -43,4 +43,6 @@ func typesInit() {
 
 		thingTypes[strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name()))] = t
 	}
+
+	return thingTypes
 }

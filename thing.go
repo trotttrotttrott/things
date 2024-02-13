@@ -24,10 +24,6 @@ type thing struct {
 	path     string
 }
 
-func (t *thing) thingType() thingType {
-	return thingTypes[t.Type]
-}
-
 func (t *thing) age() string {
 	n := time.Now().UTC()
 	b := filepath.Base(t.path)
@@ -92,5 +88,5 @@ func things(filter string) (things []thing) {
 		things = append(things, t)
 	}
 
-	return things
+	return
 }

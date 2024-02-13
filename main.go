@@ -15,17 +15,17 @@ import (
 )
 
 var (
-	thingsDir  string
-	thingTypes map[string]thingType
+	thingsDir string
 )
 
 type model struct {
-	cursor  int
-	things  []thing
-	sort    string
-	filter  string
-	lineNum bool
-	err     error
+	cursor     int
+	things     []thing
+	sort       string
+	filter     string
+	thingTypes map[string]thingType
+	lineNum    bool
+	err        error
 }
 
 func main() {
@@ -40,8 +40,6 @@ func main() {
 		thingsDir = path.Join(home, ".things")
 	}
 
-	typesInit()
-
 	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		log.Fatalln("Error:", err)
@@ -50,8 +48,9 @@ func main() {
 
 func initialModel() model {
 	m := model{
-		things: things(""),
-		sort:   "priority",
+		things:     things(""),
+		sort:       "priority",
+		thingTypes: thingTypes(),
 	}
 	m.sortThings()
 	return m
@@ -85,6 +84,13 @@ func (m *model) filterThings() {
 	m.things = things(m.filter)
 	m.sortThings()
 	m.cursor = 0
+}
+
+func (m *model) thingTypeKeys() (typeKeys []string) {
+	for k := range m.thingTypes {
+		typeKeys = append(typeKeys, k)
+	}
+	return
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -154,7 +160,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			t := time.Now().UTC()
 			fileName := t.Format("20060102150405")
 			timeThing(fileName)
-			return m, newThing(fileName)
+			return m, newThing(fileName, m.thingTypeKeys())
 		case "enter":
 			t := m.things[m.cursor]
 			b := filepath.Base(t.path)
@@ -211,7 +217,7 @@ func (m model) View() string {
 		}
 
 		s += lipgloss.NewStyle().
-			Foreground(lipgloss.Color(t.thingType().Color)).
+			Foreground(lipgloss.Color(m.thingTypes[t.Type].Color)).
 			Faint(t.Pause).
 			Bold(t.Today).
 			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s", maxTitleLen, ttt, maxTypeLen, ttp, maxPriorityLen, tpr, 3, t.age(), timeSpentOnThing(t.path)))
