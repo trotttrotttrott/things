@@ -191,11 +191,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, newThing(fileName, m.thingTypeKeys())
 			}
 		case "enter":
-			if m.modes[m.mode] == "thing" {
+			switch m.modes[m.mode] {
+			case "thing":
 				t := m.things[m.cursor]
 				b := filepath.Base(t.path)
 				timeThing(strings.TrimSuffix(b, filepath.Ext(b)))
 				return m, editThing(t)
+			case "type":
+				return m, editType(m.thingTypeKeys()[m.cursor])
 			}
 
 		// quit
@@ -204,13 +207,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		}
 
-	case editorFinishedMsg:
+	case editThingFinishedMsg:
 		stopThingTime()
 		if msg.err != nil {
 			m.err = msg.err
 		}
 		m.things = things(m.filter)
 		m.sortThings()
+
+	case editTypeFinishedMsg:
+		if msg.err != nil {
+			m.err = msg.err
+		}
+		m.thingTypes = thingTypes()
 	}
 
 	return m, nil

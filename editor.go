@@ -12,7 +12,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type editorFinishedMsg struct{ err error }
+type editThingFinishedMsg struct{ err error }
+type editTypeFinishedMsg struct{ err error }
 
 func newThing(fileName string, thingTypeKeys []string) tea.Cmd {
 
@@ -50,7 +51,7 @@ func newThing(fileName string, thingTypeKeys []string) tea.Cmd {
 	cmd := exec.Command(e, fname)
 
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
-		return editorFinishedMsg{err}
+		return editThingFinishedMsg{err}
 	})
 }
 
@@ -65,6 +66,23 @@ func editThing(t thing) tea.Cmd {
 	cmd := exec.Command(e, t.path)
 
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
-		return editorFinishedMsg{err}
+		return editThingFinishedMsg{err}
+	})
+}
+
+func editType(key string) tea.Cmd {
+
+	p := path.Join(thingsDir, "types", fmt.Sprintf("%s.md", key))
+
+	e := os.Getenv("EDITOR")
+
+	if e == "" {
+		e = "vim"
+	}
+
+	cmd := exec.Command(e, p)
+
+	return tea.ExecProcess(cmd, func(err error) tea.Msg {
+		return editTypeFinishedMsg{err}
 	})
 }
