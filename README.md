@@ -22,10 +22,28 @@ type: chore
 priority: 3
 ---
 
-Respond to that email from so and so.
+Do a thing!
 ```
 
-### Types
+### Priority
+
+You can assign things a positive integer to represent priority - 0 being highest
+priority.
+
+### Done, Pause, Today
+
+Add `done: true` to a thing to mark it as done. It will be removed from the
+default list.
+
+Add `pause: true` to pause it. This just dims its color a little to indicate you
+can skip it for now.
+
+Add `today: true` to indicate that thing needs to be addressed today. These will
+be in bold.
+
+You can filter by each of these. This is documented below.
+
+## Type Files
 
 Things have types that you define in `THINGS_DIR/types/`.
 
@@ -39,25 +57,7 @@ color: '#33ffc1'
 Random, small task. Something otherwise untracked.
 ```
 
-### Priority
-
-You can assign things a positive integer to represent priority - 0 being highest
-priority.
-
-### Done, Pause, Today
-
-Add `done: true` to a thing to mark it as done. It will be removed from the
-list.
-
-Add `pause: true` to pause it. This just dims its color a little to indicate you
-can skip it for now.
-
-Add `today: true` to indicate that thing needs to be addressed today. These will
-be in bold.
-
-You can filter by each of these. This is documented below.
-
-### Time Tracking
+## Time Files
 
 The amount of time a thing is open in your editor is tracked with csv files in
 `~/.things/time/`. Each thing has a file here as well. A row is added with the
@@ -67,6 +67,10 @@ cumulative time you've spent working on a thing.
 ## Actions
 
 ```
+// mode
+
+> = switch between "thing" and "type" modes
+
 // navigation
 
 k = cursor up
@@ -81,7 +85,7 @@ g = set cursor to first
 
 G = set cursor to last
 
-// filter
+// filter ("thing" mode only)
 
 A = clear filter (default)
 
@@ -91,7 +95,7 @@ P = pause: true
 
 T = today: true
 
-// sort
+// sort ("thing" mode only)
 
 a = sort things by age
 
@@ -105,9 +109,9 @@ t = sort things by type and priority
 
 // edit
 
-n = open new thing in $EDITOR
+n = open new thing in $EDITOR ("thing" mode only)
 
-enter = open thing in $EDITOR
+enter = open thing or type in $EDITOR
 
 // quit
 
