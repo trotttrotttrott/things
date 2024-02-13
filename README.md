@@ -3,9 +3,15 @@
 A terminal application to help keep track of all the things you're juggling at
 work or life in general.
 
+## Things Dir
+
+By default it's `~/.things/`.
+
+You can override this with `THINGS_DIR`.
+
 ## Thing Files
 
-Things are files stored in `~/.things/things/`.
+Things are files in `THINGS_DIR/things/`.
 
 When you create a new thing, a file is created and it's opened with `EDITOR`.
 
@@ -21,9 +27,9 @@ Respond to that email from so and so.
 
 ### Types
 
-Things have types that you define in `~/.things/types/`.
+Things have types that you define in `THINGS_DIR/types/`.
 
-For example, you could define `~/.things/types/chore.md` as:
+For example, you could define `THINGS_DIR/types/chore.md` as:
 
 ```markdown
 ---

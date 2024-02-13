@@ -30,12 +30,15 @@ type model struct {
 
 func main() {
 
-	home, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatalln("Error:", err)
-	}
+	thingsDir = os.Getenv("THINGS_DIR")
 
-	thingsDir = path.Join(home, ".things")
+	if thingsDir == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatalln("Error:", err)
+		}
+		thingsDir = path.Join(home, ".things")
+	}
 
 	typesInit()
 
