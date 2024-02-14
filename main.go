@@ -242,7 +242,7 @@ func (m model) View() string {
 
 			s += fmt.Sprintf("%s ", cursor)
 
-			maxTitleLen, maxPriorityLen := 50, 5
+			maxTitleLen, maxPriorityLen := 30, 5
 			if m.lineNum {
 				numWidth := len(fmt.Sprintf("%v", len(m.things)))
 				maxTitleLen = maxTitleLen - numWidth - 1
