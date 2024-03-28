@@ -113,6 +113,8 @@ n = open new thing in $EDITOR ("thing" mode only)
 
 enter = open thing or type in $EDITOR
 
+ctrl+e = open thing time file in $EDITOR ("thing" mode only)
+
 // quit
 
 q = quit

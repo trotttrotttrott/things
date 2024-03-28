@@ -13,6 +13,7 @@ import (
 )
 
 type editThingFinishedMsg struct{ err error }
+type editThingTimeFinishedMsg struct{ err error }
 type editTypeFinishedMsg struct{ err error }
 
 func newThing(fileName string, thingTypeKeys []string) tea.Cmd {
@@ -67,6 +68,23 @@ func editThing(t thing) tea.Cmd {
 
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
 		return editThingFinishedMsg{err}
+	})
+}
+
+func editThingTime(t thing) tea.Cmd {
+
+	e := os.Getenv("EDITOR")
+
+	if e == "" {
+		e = "vim"
+	}
+
+	b := filepath.Base(t.path)
+	fileName := strings.TrimSuffix(b, filepath.Ext(b))
+	cmd := exec.Command(e, path.Join(thingsDir, "time", fmt.Sprintf("%s.csv", fileName)))
+
+	return tea.ExecProcess(cmd, func(err error) tea.Msg {
+		return editThingTimeFinishedMsg{err}
 	})
 }
 

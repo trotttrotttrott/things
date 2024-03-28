@@ -200,6 +200,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "type":
 				return m, editType(m.thingTypeKeys()[m.cursor])
 			}
+		case "ctrl+e":
+			if m.modes[m.mode] == "thing" {
+				t := m.things[m.cursor]
+				return m, editThingTime(t)
+			}
 
 		// quit
 		case "ctrl+c", "q":
@@ -214,6 +219,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.things = things(m.filter)
 		m.sortThings()
+
+	case editThingTimeFinishedMsg:
+		if msg.err != nil {
+			m.err = msg.err
+		}
+		m.thingTypes = thingTypes()
 
 	case editTypeFinishedMsg:
 		if msg.err != nil {
