@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/adrg/frontmatter v0.2.0
-	github.com/charmbracelet/bubbletea v0.24.2
+	github.com/charmbracelet/bubbletea v0.25.0
 	github.com/charmbracelet/lipgloss v0.8.0
 )
 
