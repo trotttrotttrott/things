@@ -28,7 +28,11 @@ type model struct {
 	lineNum    bool
 	modes      []string
 	mode       int
-	err        error
+	viewport   struct {
+		height  int
+		startAt int
+	}
+	err error
 }
 
 func main() {
@@ -109,6 +113,9 @@ func (m *model) maxTypeLen() (mx int) {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+
+	case tea.WindowSizeMsg:
+		m.viewport.height = msg.Height - 2
 
 	case tea.KeyMsg:
 
@@ -233,6 +240,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.thingTypes = thingTypes()
 	}
 
+	// ensure cursor is in view
+	if m.cursor > m.viewport.height+m.viewport.startAt {
+		m.viewport.startAt = m.cursor - m.viewport.height
+	} else if m.cursor < m.viewport.startAt {
+		m.viewport.startAt = m.cursor
+	}
+
 	return m, nil
 }
 
@@ -245,6 +259,13 @@ func (m model) View() string {
 	case "thing":
 
 		for i, t := range m.things {
+
+			if i < m.viewport.startAt {
+				continue
+			}
+			if i > m.viewport.height+m.viewport.startAt {
+				return s
+			}
 
 			cursor := " "
 			if m.cursor == i {
