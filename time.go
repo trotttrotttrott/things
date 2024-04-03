@@ -9,7 +9,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -43,16 +42,14 @@ func stopThingTime() {
 	}
 }
 
-func timeSpentOnThing(thingPath string) string {
+func timeSpentOnThing(t thing) string {
 
 	var timeSpent time.Duration
 
-	b := filepath.Base(thingPath)
-	fpath := filepath.Join(thingsDir, "time", fmt.Sprintf("%s.csv", strings.TrimSuffix(b, filepath.Ext(b))))
-	if _, err := os.Stat(fpath); errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Stat(t.timePath); errors.Is(err, os.ErrNotExist) {
 		return timeSpent.String()
 	}
-	data, err := os.ReadFile(fpath)
+	data, err := os.ReadFile(t.timePath)
 	if err != nil {
 		log.Fatalln("Error:", err)
 	}

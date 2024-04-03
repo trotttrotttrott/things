@@ -79,9 +79,7 @@ func editThingTime(t thing) tea.Cmd {
 		e = "vim"
 	}
 
-	b := filepath.Base(t.path)
-	fileName := strings.TrimSuffix(b, filepath.Ext(b))
-	cmd := exec.Command(e, path.Join(thingsDir, "time", fmt.Sprintf("%s.csv", fileName)))
+	cmd := exec.Command(e, t.timePath)
 
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
 		return editThingTimeFinishedMsg{err}

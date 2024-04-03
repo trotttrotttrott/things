@@ -22,6 +22,7 @@ type thing struct {
 	Today    bool
 	content  string
 	path     string
+	timePath string
 }
 
 func (t *thing) age() string {
@@ -53,6 +54,7 @@ func things(filter string) (things []thing) {
 		t := thing{
 			path: path.Join(thingsDir, "things", entry.Name()),
 		}
+		t.timePath = path.Join(thingsDir, "time", fmt.Sprintf("%s.csv", strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name()))))
 
 		data, err := os.ReadFile(t.path)
 		if err != nil {
