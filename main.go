@@ -112,6 +112,9 @@ func (m *model) maxTypeLen() (mx int) {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+
+	m.err = nil // reset on each msg
+
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
@@ -251,6 +254,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
+
+	if m.err != nil {
+		return lipgloss.NewStyle().Foreground(lipgloss.Color("#ff0000")).Render(m.err.Error())
+	}
 
 	s := ""
 
