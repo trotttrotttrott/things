@@ -42,6 +42,14 @@ func (t *thing) age() string {
 	}
 }
 
+func (t *thing) remove() error {
+	err := os.Remove(t.path)
+	if err != nil {
+		return err
+	}
+	return os.Remove(t.timePath)
+}
+
 func things(filter string) (things []thing) {
 
 	dir, err := os.ReadDir(path.Join(thingsDir, "things"))

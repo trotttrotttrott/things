@@ -115,6 +115,8 @@ enter = open thing or type in $EDITOR
 
 ctrl+e = open thing time file in $EDITOR ("thing" mode only)
 
+ctrl+x = delete thing ("thing" mode only)
+
 // quit
 
 q = quit

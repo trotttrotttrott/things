@@ -32,7 +32,8 @@ type model struct {
 		height  int
 		startAt int
 	}
-	err error
+	confirmDelete *thing
+	err           error
 }
 
 func main() {
@@ -121,6 +122,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.height = msg.Height - 2
 
 	case tea.KeyMsg:
+
+		if m.confirmDelete != nil && msg.String() == "enter" {
+			m.err = m.confirmDelete.remove()
+			m.confirmDelete = nil
+			m.things = things(m.filter)
+			m.sortThings()
+			return m, nil
+		} else {
+			m.confirmDelete = nil
+		}
 
 		var cursorLimit int
 		switch m.modes[m.mode] {
@@ -215,6 +226,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				t := m.things[m.cursor]
 				return m, editThingTime(t)
 			}
+		case "ctrl+x":
+			if m.modes[m.mode] == "thing" {
+				t := m.things[m.cursor]
+				m.confirmDelete = &t
+			}
 
 		// quit
 		case "ctrl+c", "q":
@@ -234,7 +250,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.err != nil {
 			m.err = msg.err
 		}
-		m.thingTypes = thingTypes()
 
 	case editTypeFinishedMsg:
 		if msg.err != nil {
@@ -256,7 +271,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 
 	if m.err != nil {
-		return lipgloss.NewStyle().Foreground(lipgloss.Color("#ff0000")).Render(m.err.Error())
+		return lipgloss.
+			NewStyle().
+			Foreground(lipgloss.Color("#ff0000")).
+			Render(m.err.Error())
+	}
+
+	if m.confirmDelete != nil {
+		return lipgloss.
+			NewStyle().
+			Foreground(lipgloss.Color("#ff0000")).
+			Render(fmt.Sprintf("Delete %q? [press enter to confirm]", m.confirmDelete.Title))
 	}
 
 	s := ""
