@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"encoding/csv"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -48,6 +50,39 @@ func (t *thing) remove() error {
 		return err
 	}
 	return os.Remove(t.timePath)
+}
+
+func (t *thing) time() time.Duration {
+
+	var timeSpent time.Duration
+
+	if _, err := os.Stat(t.timePath); errors.Is(err, os.ErrNotExist) {
+		return timeSpent
+	}
+	data, err := os.ReadFile(t.timePath)
+	if err != nil {
+		log.Fatalln("Error:", err)
+	}
+
+	rdr := csv.NewReader(bytes.NewReader(data))
+	records, err := rdr.ReadAll()
+	if err != nil {
+		log.Fatalln("Error:", err)
+	}
+
+	for _, r := range records {
+		start, err := time.Parse(time.RFC3339, r[0])
+		if err != nil {
+			log.Fatalln("Error:", err)
+		}
+		end, err := time.Parse(time.RFC3339, r[1])
+		if err != nil {
+			log.Fatalln("Error:", err)
+		}
+		timeSpent += end.Sub(start)
+	}
+
+	return timeSpent
 }
 
 func things(filter string) (things []thing) {
