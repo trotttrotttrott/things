@@ -240,21 +240,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case editThingFinishedMsg:
 		stopThingTime()
-		if msg.err != nil {
-			m.err = msg.err
-		}
+		m.err = msg.err
 		m.things = things(m.filter)
 		m.sortThings()
 
 	case editThingTimeFinishedMsg:
-		if msg.err != nil {
-			m.err = msg.err
-		}
+		m.err = msg.err
 
 	case editTypeFinishedMsg:
-		if msg.err != nil {
-			m.err = msg.err
-		}
+		m.err = msg.err
 		m.thingTypes = thingTypes()
 	}
 
