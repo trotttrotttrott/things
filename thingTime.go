@@ -2,11 +2,8 @@ package main
 
 import (
 	"encoding/csv"
-	"fmt"
 	"log"
 	"os"
-	"path"
-	"path/filepath"
 	"time"
 )
 
@@ -23,10 +20,7 @@ func timeThing(fileName string) {
 func stopThingTime() {
 	end := time.Now().UTC()
 
-	fpath := path.Join(thingsDir, "time")
-	fname := filepath.Join(fpath, fmt.Sprintf("%s.csv", thingTime.fileName))
-
-	f, err := os.OpenFile(fname, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(thingTime.fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalln("Error:", err)
 	}

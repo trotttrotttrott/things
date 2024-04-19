@@ -52,9 +52,7 @@ func (t *thing) remove() error {
 	return os.Remove(t.timePath)
 }
 
-func (t *thing) time() time.Duration {
-
-	var timeSpent time.Duration
+func (t *thing) time() (timeSpent time.Duration) {
 
 	if _, err := os.Stat(t.timePath); errors.Is(err, os.ErrNotExist) {
 		return timeSpent
@@ -82,7 +80,7 @@ func (t *thing) time() time.Duration {
 		timeSpent += end.Sub(start)
 	}
 
-	return timeSpent
+	return
 }
 
 func things(filter string) (things []thing) {
@@ -134,4 +132,38 @@ func things(filter string) (things []thing) {
 	}
 
 	return
+}
+
+func thingNew(thingTypeKeys []string) thing {
+
+	now := time.Now().UTC().Format("20060102150405")
+
+	t := thing{
+		path:     path.Join(thingsDir, "things", fmt.Sprintf("%s.md", now)),
+		timePath: path.Join(thingsDir, "time", fmt.Sprintf("%s.csv", now)),
+	}
+
+	f, err := os.Create(t.path)
+	if err != nil {
+		log.Fatalln("Error:", err)
+	}
+
+	_, err = f.WriteString(strings.Join(
+		[]string{
+			"---",
+			"title: Thing",
+			fmt.Sprintf("type: # %s", strings.Join(thingTypeKeys, " ")),
+			"priority: 0",
+			"---",
+			"",
+		}, "\n"))
+	if err != nil {
+		log.Fatalln("Error:", err)
+	}
+
+	f.Sync()
+
+	defer f.Close()
+
+	return t
 }

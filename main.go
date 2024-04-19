@@ -5,11 +5,9 @@ import (
 	"log"
 	"os"
 	"path"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -206,18 +204,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// edit
 		case "n":
 			if m.modes[m.mode] == "thing" {
-				t := time.Now().UTC()
-				fileName := t.Format("20060102150405")
-				timeThing(fileName)
-				return m, newThing(fileName, m.thingTypeKeys())
+				t := thingNew(m.thingTypeKeys())
+				timeThing(t.timePath)
+				return m, editThing(t.path)
 			}
 		case "enter":
 			switch m.modes[m.mode] {
 			case "thing":
 				t := m.things[m.cursor]
-				b := filepath.Base(t.path)
-				timeThing(strings.TrimSuffix(b, filepath.Ext(b)))
-				return m, editThing(t)
+				timeThing(t.timePath)
+				return m, editThing(t.path)
 			case "type":
 				return m, editType(m.thingTypeKeys()[m.cursor])
 			}
