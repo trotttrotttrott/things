@@ -1,6 +1,6 @@
 module github.com/trotttrotttrott/things
 
-go 1.20
+go 1.22
 
 require (
 	github.com/adrg/frontmatter v0.2.0
