@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -18,12 +17,12 @@ type thingType struct {
 
 func thingTypes() map[string]thingType {
 
+	thingTypes := make(map[string]thingType)
+
 	dir, err := os.ReadDir(path.Join(thingsDir, "types"))
 	if err != nil {
-		log.Fatalln("Error:", err)
+		return thingTypes
 	}
-
-	thingTypes := make(map[string]thingType)
 
 	for _, entry := range dir {
 
@@ -31,12 +30,12 @@ func thingTypes() map[string]thingType {
 
 		data, err := os.ReadFile(path.Join(thingsDir, "types", entry.Name()))
 		if err != nil {
-			log.Fatalln("Error:", err)
+			continue
 		}
 
 		rest, err := frontmatter.Parse(bytes.NewReader(data), &t)
 		if err != nil {
-			log.Fatalln("Error:", err)
+			continue
 		}
 
 		t.description = string(rest)

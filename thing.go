@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -32,7 +31,7 @@ func (t *thing) age() string {
 	b := filepath.Base(t.path)
 	tm, err := time.Parse("20060102150405", strings.TrimSuffix(b, filepath.Ext(b)))
 	if err != nil {
-		log.Fatalln("Error:", err)
+		return ""
 	}
 
 	dur := n.Sub(tm).Hours() / 24
@@ -55,27 +54,27 @@ func (t *thing) remove() error {
 func (t *thing) time() (timeSpent time.Duration) {
 
 	if _, err := os.Stat(t.timePath); errors.Is(err, os.ErrNotExist) {
-		return timeSpent
+		return
 	}
 	data, err := os.ReadFile(t.timePath)
 	if err != nil {
-		log.Fatalln("Error:", err)
+		return
 	}
 
 	rdr := csv.NewReader(bytes.NewReader(data))
 	records, err := rdr.ReadAll()
 	if err != nil {
-		log.Fatalln("Error:", err)
+		return
 	}
 
 	for _, r := range records {
 		start, err := time.Parse(time.RFC3339, r[0])
 		if err != nil {
-			log.Fatalln("Error:", err)
+			continue
 		}
 		end, err := time.Parse(time.RFC3339, r[1])
 		if err != nil {
-			log.Fatalln("Error:", err)
+			continue
 		}
 		timeSpent += end.Sub(start)
 	}
@@ -87,7 +86,7 @@ func things(filter string) (things []thing) {
 
 	dir, err := os.ReadDir(path.Join(thingsDir, "things"))
 	if err != nil {
-		log.Fatalln("Error:", err)
+		return
 	}
 
 	for _, entry := range dir {
@@ -99,12 +98,12 @@ func things(filter string) (things []thing) {
 
 		data, err := os.ReadFile(t.path)
 		if err != nil {
-			log.Fatalln("Error:", err)
+			continue
 		}
 
 		rest, err := frontmatter.Parse(bytes.NewReader(data), &t)
 		if err != nil {
-			log.Fatalln("Error:", err)
+			continue
 		}
 
 		switch filter {
@@ -134,19 +133,19 @@ func things(filter string) (things []thing) {
 	return
 }
 
-func thingNew(thingTypeKeys []string) thing {
+func thingNew(thingTypeKeys []string) (t thing, err error) {
 
 	now := time.Now().UTC().Format("20060102150405")
 
-	t := thing{
-		path:     path.Join(thingsDir, "things", fmt.Sprintf("%s.md", now)),
-		timePath: path.Join(thingsDir, "time", fmt.Sprintf("%s.csv", now)),
-	}
+	t.path = path.Join(thingsDir, "things", fmt.Sprintf("%s.md", now))
+	t.timePath = path.Join(thingsDir, "time", fmt.Sprintf("%s.csv", now))
 
 	f, err := os.Create(t.path)
 	if err != nil {
-		log.Fatalln("Error:", err)
+		return
 	}
+
+	defer f.Close()
 
 	_, err = f.WriteString(strings.Join(
 		[]string{
@@ -157,13 +156,12 @@ func thingNew(thingTypeKeys []string) thing {
 			"---",
 			"",
 		}, "\n"))
+
 	if err != nil {
-		log.Fatalln("Error:", err)
+		return
 	}
 
-	f.Sync()
+	err = f.Sync()
 
-	defer f.Close()
-
-	return t
+	return
 }
