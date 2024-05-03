@@ -113,6 +113,12 @@ func (m *model) maxTypeLen() (mx int) {
 	return
 }
 
+func (m *model) setCursorInBounds() {
+	if m.cursor+1 > len(m.things) {
+		m.cursor = len(m.things) - 1
+	}
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.errs = m.errs[:0]
@@ -129,6 +135,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.confirmDelete = nil
 			m.things = things(m.filter)
 			m.sortThings()
+			m.setCursorInBounds()
 			return m, nil
 		} else {
 			m.confirmDelete = nil
@@ -246,6 +253,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.errs = append(m.errs, msg.err)
 		m.things = things(m.filter)
 		m.sortThings()
+		m.setCursorInBounds()
 
 	case editThingTimeFinishedMsg:
 		m.errs = append(m.errs, msg.err)
