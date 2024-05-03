@@ -56,11 +56,13 @@ func main() {
 func initialModel() model {
 
 	m := model{
-		things:     things(""),
 		sort:       "priority",
+		filter:     "current",
 		thingTypes: thingTypes(),
 		modes:      []string{"thing", "type"},
 	}
+
+	m.things = things(m.filter)
 
 	m.sortThings()
 	return m
@@ -183,11 +185,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.cursor = 0
 
 		// filter
-		case "A":
-			m.filter = ""
+		case "C":
+			m.filter = "current"
 			m.filterThings()
 		case "D":
 			m.filter = "done"
+			m.filterThings()
+		case "A":
+			m.filter = ""
 			m.filterThings()
 		case "P":
 			m.filter = "pause"

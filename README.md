@@ -87,9 +87,11 @@ G = set cursor to last
 
 // filter ("thing" mode only)
 
-A = clear filter (default)
+C = current, done: false (default)
 
 D = done: true
+
+A = all, no filter
 
 P = pause: true
 

@@ -107,6 +107,10 @@ func things(filter string) (things []thing) {
 		}
 
 		switch filter {
+		case "current":
+			if t.Done {
+				continue
+			}
 		case "done":
 			if !t.Done {
 				continue
@@ -117,10 +121,6 @@ func things(filter string) (things []thing) {
 			}
 		case "today":
 			if !t.Today {
-				continue
-			}
-		default:
-			if t.Done {
 				continue
 			}
 		}
