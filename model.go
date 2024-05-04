@@ -89,6 +89,14 @@ func (m *model) setCursorInBounds() {
 	}
 }
 
+func (m *model) setCursorInView() {
+	if m.cursor > m.viewportHeight()+m.viewport.startAt {
+		m.viewport.startAt = m.cursor - m.viewportHeight()
+	} else if m.cursor < m.viewport.startAt {
+		m.viewport.startAt = m.cursor
+	}
+}
+
 func (m *model) viewportHeight() int {
 	h := m.viewport.height
 	if m.search.active {

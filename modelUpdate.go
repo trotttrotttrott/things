@@ -195,12 +195,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.thingTypes = thingTypes()
 	}
 
-	// ensure cursor is in view
-	if m.cursor > m.viewportHeight()+m.viewport.startAt {
-		m.viewport.startAt = m.cursor - m.viewportHeight()
-	} else if m.cursor < m.viewport.startAt {
-		m.viewport.startAt = m.cursor
-	}
+	m.setCursorInView()
 
 	return m, nil
 }
