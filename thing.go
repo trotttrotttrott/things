@@ -165,3 +165,19 @@ func thingNew(thingTypeKeys []string) (t thing, err error) {
 
 	return
 }
+
+func thingSearch(things []thing, s string) (m []thing, err error) {
+
+	for _, t := range things {
+		contents, err := os.ReadFile(t.path)
+		if err != nil {
+			return m, err
+		}
+
+		if strings.Contains(strings.ToLower(string(contents)), strings.ToLower(s)) {
+			m = append(m, t)
+		}
+	}
+
+	return
+}

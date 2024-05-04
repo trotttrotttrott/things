@@ -71,6 +71,8 @@ cumulative time you've spent working on a thing.
 
 > = switch between "thing" and "type" modes
 
+/ = search ("thing" mode only)
+
 // navigation
 
 k = cursor up
@@ -121,5 +123,5 @@ ctrl+x = delete thing ("thing" mode only)
 
 // quit
 
-q = quit
+ctrl+c, q = quit
 ```

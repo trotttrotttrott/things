@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -27,7 +28,11 @@ type model struct {
 	lineNum    bool
 	modes      []string
 	mode       int
-	viewport   struct {
+	search     struct {
+		active bool
+		input  textinput.Model
+	}
+	viewport struct {
 		height  int
 		startAt int
 	}
@@ -62,6 +67,9 @@ func initialModel() model {
 		modes:      []string{"thing", "type"},
 	}
 
+	m.search.input = textinput.New()
+	m.search.input.Prompt = "Search: "
+
 	m.things = things(m.filter)
 
 	m.sortThings()
@@ -70,6 +78,19 @@ func initialModel() model {
 
 func (m model) Init() tea.Cmd {
 	return nil
+}
+
+func (m *model) searchThings() {
+	things, err := thingSearch(things(m.filter), m.search.input.Value())
+	m.errs = append(m.errs, err)
+	m.things = things
+	m.setCursorInBounds()
+}
+
+func (m *model) searchDeactivate() {
+	m.search.active = false
+	m.search.input.Blur()
+	m.search.input.Reset()
 }
 
 func (m *model) sortThings() {
@@ -121,6 +142,14 @@ func (m *model) setCursorInBounds() {
 	}
 }
 
+func (m *model) viewportHeight() int {
+	h := m.viewport.height
+	if m.search.active {
+		h -= 3
+	}
+	return h
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.errs = m.errs[:0]
@@ -131,6 +160,42 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.height = msg.Height - 2
 
 	case tea.KeyMsg:
+
+		switch msg.String() {
+
+		// quit
+		case "ctrl+c":
+			return m, tea.Quit
+		case "q":
+			if !m.search.input.Focused() {
+				return m, tea.Quit
+			}
+		}
+
+		if m.search.active {
+
+			switch msg.String() {
+
+			case "esc":
+				m.searchDeactivate()
+				m.things = things(m.filter)
+
+			case "enter":
+				if m.search.input.Focused() {
+					m.search.input.Blur()
+					m.searchThings()
+					m.cursor = 0
+					return m, nil
+				}
+
+			default:
+				if m.search.input.Focused() {
+					var cmd tea.Cmd
+					m.search.input, cmd = m.search.input.Update(msg)
+					return m, cmd
+				}
+			}
+		}
 
 		if m.confirmDelete != nil && msg.String() == "enter" {
 			m.errs = append(m.errs, m.confirmDelete.remove())
@@ -188,18 +253,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "C":
 			m.filter = "current"
 			m.filterThings()
+			m.searchDeactivate()
 		case "D":
 			m.filter = "done"
 			m.filterThings()
+			m.searchDeactivate()
 		case "A":
 			m.filter = ""
 			m.filterThings()
+			m.searchDeactivate()
 		case "P":
 			m.filter = "pause"
 			m.filterThings()
+			m.searchDeactivate()
 		case "T":
 			m.filter = "today"
 			m.filterThings()
+			m.searchDeactivate()
 
 		// sort
 		case "a":
@@ -247,10 +317,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.confirmDelete = &t
 			}
 
-		// quit
-		case "ctrl+c", "q":
-			return m, tea.Quit
+		// search
+		case "/":
+			if m.modes[m.mode] == "thing" {
+				m.search.active = true
+				m.search.input.Focus()
 
+			}
 		}
 
 	case editThingFinishedMsg:
@@ -258,7 +331,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.errs = append(m.errs, msg.err)
 		m.things = things(m.filter)
 		m.sortThings()
-		m.setCursorInBounds()
+		if m.search.active {
+			m.searchThings()
+		}
 
 	case editThingTimeFinishedMsg:
 		m.errs = append(m.errs, msg.err)
@@ -269,8 +344,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	// ensure cursor is in view
-	if m.cursor > m.viewport.height+m.viewport.startAt {
-		m.viewport.startAt = m.cursor - m.viewport.height
+	if m.cursor > m.viewportHeight()+m.viewport.startAt {
+		m.viewport.startAt = m.cursor - m.viewportHeight()
 	} else if m.cursor < m.viewport.startAt {
 		m.viewport.startAt = m.cursor
 	}
@@ -323,12 +398,20 @@ func (m model) thingView() string {
 
 	s := ""
 
+	if m.search.active {
+		s += fmt.Sprintf("\n%s\n\n", m.search.input.View())
+	}
+
+	if len(m.things) == 0 {
+		s += lipgloss.NewStyle().Faint(true).Render("No things to show")
+	}
+
 	for i, t := range m.things {
 
 		if i < m.viewport.startAt {
 			continue
 		}
-		if i > m.viewport.height+m.viewport.startAt {
+		if i > m.viewportHeight()+m.viewport.startAt {
 			return s
 		}
 
