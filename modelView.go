@@ -59,7 +59,7 @@ func (m model) thingView() string {
 	}
 
 	if len(m.things) == 0 {
-		s += lipgloss.NewStyle().Faint(true).Render("No things to show")
+		s += lipgloss.NewStyle().Faint(true).Render("  No things to show")
 	}
 
 	for i, t := range m.things {

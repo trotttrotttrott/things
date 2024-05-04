@@ -33,7 +33,7 @@ func main() {
 	}
 
 	m.search.input = textinput.New()
-	m.search.input.Prompt = "Search: "
+	m.search.input.Prompt = "  Search: "
 
 	m.things = things(m.filter)
 
