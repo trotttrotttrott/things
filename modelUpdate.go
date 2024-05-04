@@ -31,6 +31,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "esc":
 				m.searchDeactivate()
 				m.things = things(m.filter)
+				m.sortThings()
 
 			case "enter":
 				if m.search.input.Focused() {
