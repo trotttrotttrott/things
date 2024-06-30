@@ -78,17 +78,24 @@ func (m model) thingView() string {
 
 		s += fmt.Sprintf("%s ", cursor)
 
-		maxTitleLen, maxPriorityLen := 30, 5
+		maxTitleLen := 35
+		switch {
+		case m.viewport.width > 90:
+			maxTitleLen = 55
+		case m.viewport.width > 80:
+			maxTitleLen = 45
+		}
 		if m.lineNum {
 			numWidth := len(fmt.Sprintf("%v", len(m.things)))
 			maxTitleLen = maxTitleLen - numWidth - 1
 			s += fmt.Sprintf("%*v ", numWidth, i+1)
 		}
-
 		ttt, ttp, tpr := t.Title, t.Type, fmt.Sprintf("%d ", t.Priority)
 		if len(t.Title) > maxTitleLen {
 			ttt = fmt.Sprintf("%s...", t.Title[0:maxTitleLen-3])
 		}
+
+		maxPriorityLen := 5
 		if len(tpr) > maxPriorityLen {
 			tpr = fmt.Sprintf("%s+", tpr[0:maxPriorityLen-1])
 		}

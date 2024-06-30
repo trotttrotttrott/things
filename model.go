@@ -20,6 +20,7 @@ type model struct {
 		input  textinput.Model
 	}
 	viewport struct {
+		width   int
 		height  int
 		startAt int
 	}
