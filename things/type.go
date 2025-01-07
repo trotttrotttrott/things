@@ -15,11 +15,15 @@ type Type struct {
 	Color       string
 }
 
+func (ts *Things) TypesPath() string {
+	return path.Join(ts.Path, "types")
+}
+
 func (ts *Things) ResetTypes() error {
 
 	thingTypes := make(map[string]Type)
 
-	dir, err := os.ReadDir(path.Join(ts.Path, "types"))
+	dir, err := os.ReadDir(ts.TypesPath())
 	if err != nil {
 		return err
 	}
@@ -28,7 +32,7 @@ func (ts *Things) ResetTypes() error {
 
 		t := Type{}
 
-		data, err := os.ReadFile(path.Join(ts.Path, "types", entry.Name()))
+		data, err := os.ReadFile(path.Join(ts.TypesPath(), entry.Name()))
 		if err != nil {
 			continue
 		}

@@ -44,9 +44,9 @@ func editThingTime(t things.Thing) tea.Cmd {
 	})
 }
 
-func editType(key string) tea.Cmd {
+func editType(typePath, key string) tea.Cmd {
 
-	p := path.Join(thingsDir, "types", fmt.Sprintf("%s.md", key))
+	p := path.Join(typePath, fmt.Sprintf("%s.md", key))
 
 	cmd := exec.Command(editor(), p)
 

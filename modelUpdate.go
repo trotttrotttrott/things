@@ -150,7 +150,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				things.Start(t.TimePath)
 				return m, editThing(t.Path)
 			case "type":
-				return m, editType(m.thingTypeKeys()[m.cursor])
+				return m, editType(m.things.TypesPath(), m.thingTypeKeys()[m.cursor])
 			}
 		case "ctrl+e":
 			if m.modes[m.mode] == "thing" {

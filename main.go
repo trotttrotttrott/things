@@ -11,14 +11,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-var (
-	// TODO: remove this
-	thingsDir string
-)
-
 func main() {
 
-	thingsDir = os.Getenv("THINGS_DIR")
+	thingsDir := os.Getenv("THINGS_DIR")
 
 	if thingsDir == "" {
 		home, err := os.UserHomeDir()
