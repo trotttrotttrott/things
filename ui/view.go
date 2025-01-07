@@ -106,6 +106,11 @@ func (m model) thingView() string {
 			Bold(t.Today).
 			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s", maxTitleLen, ttt, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.Age(), t.Time().String()))
 		s += "\n"
+
+		if t.Pin && len(m.things.Things) > i-1 && !m.things.Things[i+1].Pin {
+			s += "\n  ---\n\n"
+		}
+
 	}
 
 	return s

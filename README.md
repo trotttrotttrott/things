@@ -43,6 +43,10 @@ be in bold.
 
 You can filter by each of these. This is documented below.
 
+### Pin
+
+Add `pin: true` to pin it to the top of the list.
+
 ## Type Files
 
 Things have types that you define in `THINGS_DIR/types/`.

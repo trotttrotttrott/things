@@ -67,26 +67,6 @@ func (ts *Things) NewThing(thingTypeKeys []string) (t Thing, err error) {
 	return
 }
 
-func (ts *Things) Search(s string) error {
-
-	var result []Thing
-
-	for _, t := range ts.Things {
-		contents, err := os.ReadFile(t.Path)
-		if err != nil {
-			return err
-		}
-
-		if strings.Contains(strings.ToLower(string(contents)), strings.ToLower(s)) {
-			result = append(result, t)
-		}
-	}
-	ts.Things = result
-	ts.Sort("")
-
-	return nil
-}
-
 func (ts *Things) Filter(filter string) error {
 	ts.filter = filter
 	return ts.ResetThings()
@@ -171,4 +151,37 @@ func (ts *Things) Sort(s string) {
 			return ts.Things[i].Priority < ts.Things[j].Priority
 		})
 	}
+
+	var pinned []Thing
+	var unpinned []Thing
+
+	for _, t := range ts.Things {
+		if t.Pin {
+			pinned = append(pinned, t)
+		} else {
+			unpinned = append(unpinned, t)
+		}
+	}
+
+	ts.Things = append(pinned, unpinned...)
+}
+
+func (ts *Things) Search(s string) error {
+
+	var result []Thing
+
+	for _, t := range ts.Things {
+		contents, err := os.ReadFile(t.Path)
+		if err != nil {
+			return err
+		}
+
+		if strings.Contains(strings.ToLower(string(contents)), strings.ToLower(s)) {
+			result = append(result, t)
+		}
+	}
+	ts.Things = result
+	ts.Sort("")
+
+	return nil
 }

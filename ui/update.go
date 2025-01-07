@@ -177,6 +177,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.errs = append(m.errs, msg.err)
 		if m.search.active {
 			m.searchThings()
+		} else {
+			m.things.ResetThings()
 		}
 
 	case editThingTimeFinishedMsg:
