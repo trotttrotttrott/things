@@ -58,11 +58,11 @@ func (m model) thingView() string {
 		s += fmt.Sprintf("\n%s\n\n", m.search.input.View())
 	}
 
-	if len(m.things) == 0 {
+	if len(m.things.Things) == 0 {
 		s += lipgloss.NewStyle().Faint(true).Render("  No things to show")
 	}
 
-	for i, t := range m.things {
+	for i, t := range m.things.Things {
 
 		if i < m.viewport.startAt {
 			continue
@@ -86,7 +86,7 @@ func (m model) thingView() string {
 			maxTitleLen = 45
 		}
 		if m.lineNum {
-			numWidth := len(fmt.Sprintf("%v", len(m.things)))
+			numWidth := len(fmt.Sprintf("%v", len(m.things.Things)))
 			maxTitleLen = maxTitleLen - numWidth - 1
 			s += fmt.Sprintf("%*v ", numWidth, i+1)
 		}
@@ -101,10 +101,10 @@ func (m model) thingView() string {
 		}
 
 		s += lipgloss.NewStyle().
-			Foreground(lipgloss.Color(m.thingTypes[t.Type].Color)).
+			Foreground(lipgloss.Color(m.things.Types[t.Type].Color)).
 			Faint(t.Pause).
 			Bold(t.Today).
-			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s", maxTitleLen, ttt, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.age(), t.time().String()))
+			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s", maxTitleLen, ttt, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.Age(), t.Time().String()))
 		s += "\n"
 	}
 
@@ -125,17 +125,17 @@ func (m model) typeView() string {
 		s += fmt.Sprintf("%s ", cursor)
 
 		if m.lineNum {
-			numWidth := len(fmt.Sprintf("%v", len(m.things)))
+			numWidth := len(fmt.Sprintf("%v", len(m.things.Things)))
 			s += fmt.Sprintf("%*v ", numWidth, i+1)
 		}
 
-		description := regexp.MustCompile(`\n+`).ReplaceAllString(strings.TrimSpace(m.thingTypes[t].description), "...")
+		description := regexp.MustCompile(`\n+`).ReplaceAllString(strings.TrimSpace(m.things.Types[t].Description), "...")
 		if len(description) > 50 {
 			description = fmt.Sprintf("%s...", description[0:50])
 		}
 
 		s += lipgloss.NewStyle().
-			Foreground(lipgloss.Color(m.thingTypes[t].Color)).
+			Foreground(lipgloss.Color(m.things.Types[t].Color)).
 			Render(fmt.Sprintf("%-*s | %s", m.maxTypeLen(), t, description))
 		s += "\n"
 

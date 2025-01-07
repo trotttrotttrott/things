@@ -1,6 +1,10 @@
 package main
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"github.com/trotttrotttrott/things/things"
+
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
@@ -31,8 +35,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "esc":
 				m.searchDeactivate()
-				m.things = things(m.filter)
-				m.sortThings()
 
 			case "enter":
 				if m.search.input.Focused() {
@@ -52,10 +54,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if m.confirmDelete != nil && msg.String() == "enter" {
-			m.errs = append(m.errs, m.confirmDelete.remove())
+			m.errs = append(m.errs, m.confirmDelete.Remove())
 			m.confirmDelete = nil
-			m.things = things(m.filter)
-			m.sortThings()
 			m.setCursorInBounds()
 			return m, nil
 		} else {
@@ -65,9 +65,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var cursorLimit int
 		switch m.modes[m.mode] {
 		case "thing":
-			cursorLimit = len(m.things)
+			cursorLimit = len(m.things.Things)
 		case "type":
-			cursorLimit = len(m.thingTypes)
+			cursorLimit = len(m.things.Types)
 		}
 
 		switch msg.String() {
@@ -105,36 +105,28 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// filter
 		case "C":
-			m.filter = "current"
-			m.filterThings()
+			m.things.Filter("current")
 			m.searchDeactivate()
 		case "D":
-			m.filter = "done"
-			m.filterThings()
+			m.things.Filter("done")
 			m.searchDeactivate()
 		case "A":
-			m.filter = ""
-			m.filterThings()
+			m.things.Filter("")
 			m.searchDeactivate()
 		case "P":
-			m.filter = "pause"
-			m.filterThings()
+			m.things.Filter("pause")
 			m.searchDeactivate()
 		case "T":
-			m.filter = "today"
-			m.filterThings()
+			m.things.Filter("today")
 			m.searchDeactivate()
 
 		// sort
 		case "a":
-			m.sort = "age"
-			m.sortThings()
+			m.things.Sort("age")
 		case "p":
-			m.sort = "priority"
-			m.sortThings()
+			m.things.Sort("priority")
 		case "t":
-			m.sort = "type"
-			m.sortThings()
+			m.things.Sort("type")
 
 		// display
 		case "#":
@@ -143,31 +135,31 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// edit
 		case "n":
 			if m.modes[m.mode] == "thing" {
-				t, err := thingNew(m.thingTypeKeys())
+				t, err := m.things.NewThing(m.thingTypeKeys())
 				if err != nil {
 					m.errs = append(m.errs, err)
 				} else {
-					timeThing(t.timePath)
-					return m, editThing(t.path)
+					things.Start(t.TimePath)
+					return m, editThing(t.Path)
 				}
 			}
 		case "enter":
 			switch m.modes[m.mode] {
 			case "thing":
-				t := m.things[m.cursor]
-				timeThing(t.timePath)
-				return m, editThing(t.path)
+				t := m.things.Things[m.cursor]
+				things.Start(t.TimePath)
+				return m, editThing(t.Path)
 			case "type":
 				return m, editType(m.thingTypeKeys()[m.cursor])
 			}
 		case "ctrl+e":
 			if m.modes[m.mode] == "thing" {
-				t := m.things[m.cursor]
+				t := m.things.Things[m.cursor]
 				return m, editThingTime(t)
 			}
 		case "ctrl+x":
 			if m.modes[m.mode] == "thing" {
-				t := m.things[m.cursor]
+				t := m.things.Things[m.cursor]
 				m.confirmDelete = &t
 			}
 
@@ -181,10 +173,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case editThingFinishedMsg:
-		m.errs = append(m.errs, stopThingTime())
+		m.errs = append(m.errs, things.Stop())
 		m.errs = append(m.errs, msg.err)
-		m.things = things(m.filter)
-		m.sortThings()
 		if m.search.active {
 			m.searchThings()
 		}
@@ -194,7 +184,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case editTypeFinishedMsg:
 		m.errs = append(m.errs, msg.err)
-		m.thingTypes = thingTypes()
+		m.things.ResetTypes()
 	}
 
 	m.setCursorInView()

@@ -5,11 +5,14 @@ import (
 	"os"
 	"path"
 
+	"github.com/trotttrotttrott/things/things"
+
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 var (
+	// TODO: remove this
 	thingsDir string
 )
 
@@ -26,18 +29,13 @@ func main() {
 	}
 
 	m := model{
-		sort:       "priority",
-		filter:     "current",
-		thingTypes: thingTypes(),
-		modes:      []string{"thing", "type"},
+		modes: []string{"thing", "type"},
 	}
 
 	m.search.input = textinput.New()
 	m.search.input.Prompt = "  Search: "
 
-	m.things = things(m.filter)
-
-	m.sortThings()
+	m.things = things.New(thingsDir)
 
 	p := tea.NewProgram(m, tea.WithAltScreen())
 

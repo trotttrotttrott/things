@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"path"
 
+	"github.com/trotttrotttrott/things/things"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -33,9 +35,9 @@ func editThing(thingPath string) tea.Cmd {
 	})
 }
 
-func editThingTime(t thing) tea.Cmd {
+func editThingTime(t things.Thing) tea.Cmd {
 
-	cmd := exec.Command(editor(), t.timePath)
+	cmd := exec.Command(editor(), t.TimePath)
 
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
 		return editThingTimeFinishedMsg{err}

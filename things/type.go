@@ -1,4 +1,4 @@
-package main
+package things
 
 import (
 	"bytes"
@@ -10,25 +10,25 @@ import (
 	"github.com/adrg/frontmatter"
 )
 
-type thingType struct {
-	description string
+type Type struct {
+	Description string
 	Color       string
 }
 
-func thingTypes() map[string]thingType {
+func (ts *Things) ResetTypes() error {
 
-	thingTypes := make(map[string]thingType)
+	thingTypes := make(map[string]Type)
 
-	dir, err := os.ReadDir(path.Join(thingsDir, "types"))
+	dir, err := os.ReadDir(path.Join(ts.Path, "types"))
 	if err != nil {
-		return thingTypes
+		return err
 	}
 
 	for _, entry := range dir {
 
-		t := thingType{}
+		t := Type{}
 
-		data, err := os.ReadFile(path.Join(thingsDir, "types", entry.Name()))
+		data, err := os.ReadFile(path.Join(ts.Path, "types", entry.Name()))
 		if err != nil {
 			continue
 		}
@@ -38,10 +38,12 @@ func thingTypes() map[string]thingType {
 			continue
 		}
 
-		t.description = string(rest)
+		t.Description = string(rest)
 
 		thingTypes[strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name()))] = t
 	}
 
-	return thingTypes
+	ts.Types = thingTypes
+
+	return nil
 }
