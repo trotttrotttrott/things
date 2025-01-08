@@ -108,7 +108,7 @@ func (m model) thingView() string {
 		s += "\n"
 
 		if t.Pin && len(m.things.Things) > i-1 && !m.things.Things[i+1].Pin {
-			s += "\n  ---\n\n"
+			s += "  ---\n"
 		}
 
 	}

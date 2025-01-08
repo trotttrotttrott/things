@@ -99,5 +99,8 @@ func (m *model) viewportHeight() int {
 	if m.search.active {
 		h -= 3
 	}
+	if len(m.things.Things) > 0 && m.things.Things[0].Pin {
+		h -= 1
+	}
 	return h
 }
