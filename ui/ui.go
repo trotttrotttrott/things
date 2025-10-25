@@ -30,6 +30,7 @@ type model struct {
 	}
 	confirmDelete *things.Thing
 	errs          []error
+	helpActive    bool
 }
 
 func Start(thingsDir string) {

@@ -21,6 +21,10 @@ func (m model) View() string {
 		return m.errorView()
 	}
 
+	if m.helpActive {
+		return m.helpView()
+	}
+
 	if m.confirmDelete != nil {
 		return m.confirmDeleteView()
 	}
@@ -145,6 +149,57 @@ func (m model) typeView() string {
 		s += "\n"
 
 	}
+
+	return s
+}
+
+func (m model) helpView() string {
+	section := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#ffff00")).
+		Bold(true)
+
+	key := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#00ff00"))
+
+	s := section.Render("  Mode") + "\n"
+	s += "  " + key.Render(">") + "       switch between \"thing\" and \"type\" modes\n"
+	s += "  " + key.Render("/") + "       search (\"thing\" mode only)\n"
+	s += "  " + key.Render("?") + "       toggle help\n\n"
+
+	s += section.Render("  Navigation") + "\n"
+	s += "  " + key.Render("k") + "       cursor up\n"
+	s += "  " + key.Render("j") + "       cursor down\n"
+	s += "  " + key.Render("ctrl+u") + "  cursor up 5\n"
+	s += "  " + key.Render("ctrl+d") + "  cursor down 5\n"
+	s += "  " + key.Render("g") + "       set cursor to first\n"
+	s += "  " + key.Render("G") + "       set cursor to last\n\n"
+
+	s += section.Render("  Filter") + " (\"thing\" mode only)\n"
+	s += "  " + key.Render("C") + "       current, done: false (default)\n"
+	s += "  " + key.Render("D") + "       done: true\n"
+	s += "  " + key.Render("A") + "       all, no filter\n"
+	s += "  " + key.Render("P") + "       pause: true\n"
+	s += "  " + key.Render("T") + "       today: true\n\n"
+
+	s += section.Render("  Sort") + " (\"thing\" mode only)\n"
+	s += "  " + key.Render("a") + "       sort things by age\n"
+	s += "  " + key.Render("p") + "       sort things by priority (default)\n"
+	s += "  " + key.Render("t") + "       sort things by type and priority\n\n"
+
+	s += section.Render("  Display") + "\n"
+	s += "  " + key.Render("#") + "       toggle line numbers\n\n"
+
+	s += section.Render("  Edit") + "\n"
+	s += "  " + key.Render("n") + "       open new thing in $EDITOR (\"thing\" mode only)\n"
+	s += "  " + key.Render("enter") + "   open thing or type in $EDITOR\n"
+	s += "  " + key.Render("ctrl+e") + "  open thing time file in $EDITOR (\"thing\" mode only)\n"
+	s += "  " + key.Render("ctrl+x") + "  delete thing (\"thing\" mode only)\n\n"
+
+	s += section.Render("  Quit") + "\n"
+	s += "  " + key.Render("ctrl+c") + "  quit\n"
+	s += "  " + key.Render("q") + "       quit\n\n"
+
+	s += lipgloss.NewStyle().Faint(true).Render("  Press ? again to close help\n")
 
 	return s
 }

@@ -170,6 +170,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.search.input.Focus()
 
 			}
+
+		// help
+		case "?":
+			m.helpActive = !m.helpActive
 		}
 
 	case editThingFinishedMsg:

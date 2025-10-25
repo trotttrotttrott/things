@@ -77,6 +77,8 @@ cumulative time you've spent working on a thing.
 
 / = search ("thing" mode only)
 
+? = toggle help
+
 // navigation
 
 k = cursor up
