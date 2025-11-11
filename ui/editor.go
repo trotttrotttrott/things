@@ -14,6 +14,7 @@ import (
 type editThingFinishedMsg struct{ err error }
 type editThingTimeFinishedMsg struct{ err error }
 type editTypeFinishedMsg struct{ err error }
+type editThingDeepFinishedMsg struct{ err error }
 
 func editor() string {
 
@@ -52,5 +53,28 @@ func editType(typePath, key string) tea.Cmd {
 
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
 		return editTypeFinishedMsg{err}
+	})
+}
+
+func editThingDeep(t things.Thing, thingsDir string) tea.Cmd {
+
+	// Extract thing ID from filename (remove .md extension)
+	basename := path.Base(t.Path)
+	thingID := basename[:len(basename)-3]
+
+	// Create deep directory if it doesn't exist
+	deepDir := path.Join(thingsDir, "things-deep", thingID)
+	err := os.MkdirAll(deepDir, 0755)
+	if err != nil {
+		return func() tea.Msg {
+			return editThingDeepFinishedMsg{err}
+		}
+	}
+
+	cmd := exec.Command(editor(), ".")
+	cmd.Dir = deepDir
+
+	return tea.ExecProcess(cmd, func(err error) tea.Msg {
+		return editThingDeepFinishedMsg{err}
 	})
 }
