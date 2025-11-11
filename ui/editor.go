@@ -58,11 +58,10 @@ func editType(typePath, key string) tea.Cmd {
 
 func editThingDeep(t things.Thing, thingsDir string) tea.Cmd {
 
-	// Extract thing ID from filename (remove .md extension)
 	basename := path.Base(t.Path)
 	thingID := basename[:len(basename)-3]
 
-	// Create deep directory if it doesn't exist
+	// Create directory if it doesn't exist
 	deepDir := path.Join(thingsDir, "things-deep", thingID)
 	err := os.MkdirAll(deepDir, 0755)
 	if err != nil {
