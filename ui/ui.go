@@ -2,6 +2,8 @@ package ui
 
 import (
 	"log"
+	"os"
+	"path/filepath"
 	"sort"
 
 	"github.com/trotttrotttrott/things/things"
@@ -104,4 +106,16 @@ func (m *model) viewportHeight() int {
 		h -= 1
 	}
 	return h
+}
+
+func (m *model) hasDeepDir(t things.Thing) bool {
+	basename := filepath.Base(t.Path)
+	thingID := basename[:len(basename)-3]
+	deepDir := filepath.Join(m.things.Path, "things-deep", thingID)
+
+	info, err := os.Stat(deepDir)
+	if err != nil {
+		return false
+	}
+	return info.IsDir()
 }

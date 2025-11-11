@@ -68,6 +68,15 @@ The amount of time a thing is open in your editor is tracked with csv files in
 open and close time every time you open a thing in order to calculate the
 cumulative time you've spent working on a thing.
 
+## Thing Directories
+
+For complex things that require extended research, multiple files, or
+collaboration with AI tools, you can create a directory for it.
+
+Directories are stored in `THINGS_DIR/things-deep/{thing-id}/`.
+
+Things that have directories show a `*` indicator in the list.
+
 ## Actions
 
 ```
@@ -122,6 +131,8 @@ t = sort things by type and priority
 n = open new thing in $EDITOR ("thing" mode only)
 
 enter = open thing or type in $EDITOR
+
+E = open thing directory in $EDITOR ("thing" mode only)
 
 ctrl+e = open thing time file in $EDITOR ("thing" mode only)
 

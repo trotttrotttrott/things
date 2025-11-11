@@ -104,11 +104,16 @@ func (m model) thingView() string {
 			tpr = fmt.Sprintf("%s+", tpr[0:maxPriorityLen-1])
 		}
 
+		deepIndicator := ""
+		if m.hasDeepDir(t) {
+			deepIndicator = " *"
+		}
+
 		s += lipgloss.NewStyle().
 			Foreground(lipgloss.Color(m.things.Types[t.Type].Color)).
 			Faint(t.Pause).
 			Bold(t.Today).
-			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s", maxTitleLen, ttt, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.Age(), t.Time().String()))
+			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s%s", maxTitleLen, ttt, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.Age(), t.Time().String(), deepIndicator))
 		s += "\n"
 
 		if t.Pin && len(m.things.Things) > i-1 && !m.things.Things[i+1].Pin {
@@ -192,6 +197,7 @@ func (m model) helpView() string {
 	s += section.Render("  Edit") + "\n"
 	s += "  " + key.Render("n") + "       open new thing in $EDITOR (\"thing\" mode only)\n"
 	s += "  " + key.Render("enter") + "   open thing or type in $EDITOR\n"
+	s += "  " + key.Render("E") + "       open thing directory in $EDITOR (\"thing\" mode only)\n"
 	s += "  " + key.Render("ctrl+e") + "  open thing time file in $EDITOR (\"thing\" mode only)\n"
 	s += "  " + key.Render("ctrl+x") + "  delete thing (\"thing\" mode only)\n\n"
 

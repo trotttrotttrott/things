@@ -162,6 +162,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				t := m.things.Things[m.cursor]
 				m.confirmDelete = &t
 			}
+		case "E":
+			if m.modes[m.mode] == "thing" {
+				t := m.things.Things[m.cursor]
+				things.Start(t.TimePath)
+				return m, editThingDeep(t, m.things.Path)
+			}
 
 		// search
 		case "/":
@@ -186,6 +192,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case editThingTimeFinishedMsg:
+		m.errs = append(m.errs, msg.err)
+
+	case editThingDeepFinishedMsg:
+		m.errs = append(m.errs, things.Stop())
 		m.errs = append(m.errs, msg.err)
 
 	case editTypeFinishedMsg:
