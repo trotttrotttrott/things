@@ -73,6 +73,44 @@ func (t *Thing) Time() (timeSpent time.Duration) {
 	return
 }
 
+// TimeString formats the time spent in a compact, human-friendly way.
+// Examples: "45s", "25m", "2h30m", "3d2h", "14d"
+func (t *Thing) TimeString() string {
+	d := t.Time()
+	if d == 0 {
+		return "0s"
+	}
+
+	// For durations less than a minute, show seconds
+	if d < time.Minute {
+		seconds := int(d.Round(time.Second).Seconds())
+		return fmt.Sprintf("%ds", seconds)
+	}
+
+	// Round to the nearest minute for display
+	minutes := int(d.Round(time.Minute).Minutes())
+
+	days := minutes / (60 * 24)
+	hours := (minutes % (60 * 24)) / 60
+	mins := minutes % 60
+
+	if days > 0 {
+		if hours > 0 {
+			return fmt.Sprintf("%dd%dh", days, hours)
+		}
+		return fmt.Sprintf("%dd", days)
+	}
+
+	if hours > 0 {
+		if mins > 0 {
+			return fmt.Sprintf("%dh%dm", hours, mins)
+		}
+		return fmt.Sprintf("%dh", hours)
+	}
+
+	return fmt.Sprintf("%dm", mins)
+}
+
 func (t *Thing) Remove() error {
 	err := os.Remove(t.Path)
 	if err != nil {

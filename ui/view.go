@@ -113,7 +113,7 @@ func (m model) thingView() string {
 			Foreground(lipgloss.Color(m.things.Types[t.Type].Color)).
 			Faint(t.Pause).
 			Bold(t.Today).
-			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s%s", maxTitleLen, ttt, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.Age(), t.Time().String(), deepIndicator))
+			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s%s", maxTitleLen, ttt, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.Age(), t.TimeString(), deepIndicator))
 		s += "\n"
 
 		if t.Pin && len(m.things.Things) > i-1 && !m.things.Things[i+1].Pin {
