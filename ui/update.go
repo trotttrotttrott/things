@@ -87,6 +87,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.confirmDelete != nil && msg.String() == "enter" {
 			m.errs = append(m.errs, m.confirmDelete.Remove())
 			m.confirmDelete = nil
+			if m.search.active {
+				m.searchThings()
+			} else {
+				m.things.ResetThings()
+			}
 			m.setCursorInBounds()
 			return m, nil
 		} else {
