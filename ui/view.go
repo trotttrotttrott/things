@@ -129,6 +129,10 @@ func (m model) typeView() string {
 
 	s := ""
 
+	if m.newType.active {
+		s += fmt.Sprintf("\n%s\n\n", m.newType.input.View())
+	}
+
 	for i, t := range m.thingTypeKeys() {
 
 		cursor := " "
@@ -195,7 +199,7 @@ func (m model) helpView() string {
 	s += "  " + key.Render("#") + "       toggle line numbers\n\n"
 
 	s += section.Render("  Edit") + "\n"
-	s += "  " + key.Render("n") + "       open new thing in $EDITOR (\"thing\" mode only)\n"
+	s += "  " + key.Render("n") + "       create new thing or type\n"
 	s += "  " + key.Render("enter") + "   open thing or type in $EDITOR\n"
 	s += "  " + key.Render("E") + "       open thing directory in $EDITOR (\"thing\" mode only)\n"
 	s += "  " + key.Render("ctrl+e") + "  open thing time file in $EDITOR (\"thing\" mode only)\n"

@@ -25,6 +25,10 @@ type model struct {
 		active bool
 		input  textinput.Model
 	}
+	newType struct {
+		active bool
+		input  textinput.Model
+	}
 	viewport struct {
 		width   int
 		height  int
@@ -43,6 +47,9 @@ func Start(thingsDir string) {
 
 	m.search.input = textinput.New()
 	m.search.input.Prompt = "  Search: "
+
+	m.newType.input = textinput.New()
+	m.newType.input.Prompt = "  Type name: "
 
 	m.things = things.New(thingsDir)
 
@@ -64,6 +71,12 @@ func (m *model) searchDeactivate() {
 	m.search.active = false
 	m.search.input.Blur()
 	m.search.input.Reset()
+}
+
+func (m *model) newTypeDeactivate() {
+	m.newType.active = false
+	m.newType.input.Blur()
+	m.newType.input.Reset()
 }
 
 func (m *model) thingTypeKeys() (typeKeys []string) {
@@ -100,6 +113,9 @@ func (m *model) setCursorInView() {
 func (m *model) viewportHeight() int {
 	h := m.viewport.height
 	if m.search.active {
+		h -= 3
+	}
+	if m.newType.active {
 		h -= 3
 	}
 	if len(m.things.Things) > 0 && m.things.Things[0].Pin {

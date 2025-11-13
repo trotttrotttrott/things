@@ -51,7 +51,11 @@ Add `pin: true` to pin it to the top of the list.
 
 Things have types that you define in `THINGS_DIR/types/`.
 
-For example, you could define `THINGS_DIR/types/chore.md` as:
+You can create a new type from within the application by switching to type mode
+(`>`) and pressing `n`. You'll be prompted to enter a type name, then the type
+file will be created and opened in your `EDITOR`.
+
+For example, a type file `THINGS_DIR/types/chore.md` might look like:
 
 ```markdown
 ---
@@ -128,7 +132,7 @@ t = sort things by type and priority
 
 // edit
 
-n = open new thing in $EDITOR ("thing" mode only)
+n = create a new thing or type and open in $EDITOR
 
 enter = open thing or type in $EDITOR
 

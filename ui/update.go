@@ -53,6 +53,37 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
+		if m.newType.active {
+
+			switch msg.String() {
+
+			case "esc":
+				m.newTypeDeactivate()
+
+			case "enter":
+				if m.newType.input.Focused() {
+					typeName := m.newType.input.Value()
+					m.newTypeDeactivate()
+					if typeName != "" {
+						_, err := m.things.NewType(typeName)
+						if err != nil {
+							m.errs = append(m.errs, err)
+						} else {
+							return m, editType(m.things.TypesPath(), typeName)
+						}
+					}
+					return m, nil
+				}
+
+			default:
+				if m.newType.input.Focused() {
+					var cmd tea.Cmd
+					m.newType.input, cmd = m.newType.input.Update(msg)
+					return m, cmd
+				}
+			}
+		}
+
 		if m.confirmDelete != nil && msg.String() == "enter" {
 			m.errs = append(m.errs, m.confirmDelete.Remove())
 			m.confirmDelete = nil
@@ -142,6 +173,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					things.Start(t.TimePath)
 					return m, editThing(t.Path)
 				}
+			} else if m.modes[m.mode] == "type" {
+				m.newType.active = true
+				m.newType.input.Focus()
+				return m, nil
 			}
 		case "enter":
 			switch m.modes[m.mode] {

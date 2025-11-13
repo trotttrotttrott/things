@@ -19,6 +19,46 @@ func (ts *Things) TypesPath() string {
 	return path.Join(ts.Path, "types")
 }
 
+func (ts *Things) NewType(name string) (typePath string, err error) {
+
+	// Ensure types directory exists
+	err = os.MkdirAll(ts.TypesPath(), 0755)
+	if err != nil {
+		return
+	}
+
+	typePath = path.Join(ts.TypesPath(), name+".md")
+
+	// Check if type already exists
+	if _, err = os.Stat(typePath); err == nil {
+		return typePath, os.ErrExist
+	}
+
+	f, err := os.Create(typePath)
+	if err != nil {
+		return
+	}
+
+	defer f.Close()
+
+	_, err = f.WriteString(strings.Join(
+		[]string{
+			"---",
+			"color: '#ffffff'",
+			"---",
+			"",
+			"Type description",
+		}, "\n"))
+
+	if err != nil {
+		return
+	}
+
+	err = f.Sync()
+
+	return
+}
+
 func (ts *Things) ResetTypes() error {
 
 	thingTypes := make(map[string]Type)
