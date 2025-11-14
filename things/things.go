@@ -28,6 +28,11 @@ func New(p string) Things {
 		filter: "current",
 	}
 
+	// Ensure all required directories exist
+	os.MkdirAll(path.Join(p, "things"), 0755)
+	os.MkdirAll(path.Join(p, "types"), 0755)
+	os.MkdirAll(path.Join(p, "time"), 0755)
+
 	t.ResetThings()
 	t.ResetTypes()
 
