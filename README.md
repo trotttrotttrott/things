@@ -19,7 +19,7 @@ When you create a new thing, a file is created and it's opened with `EDITOR`.
 ---
 title: Thing
 type: chore
-priority: 3
+priority: 5
 ---
 
 Do a thing!
@@ -27,8 +27,12 @@ Do a thing!
 
 ### Priority
 
-You can assign things a positive integer to represent priority - 0 being highest
-priority.
+You can assign things an integer priority value. Things are grouped by priority
+with blank lines between groups:
+- Priorities 0-4: Each is its own group, separated by blank lines
+- Priority 5+: All grouped together without separation
+
+Within each priority group, things are sorted by your chosen sort mode (age/priority/type).
 
 ### Done, Pause, Today
 
@@ -42,10 +46,6 @@ Add `today: true` to indicate that thing needs to be addressed today. These will
 be in bold.
 
 You can filter by each of these. This is documented below.
-
-### Pin
-
-Add `pin: true` to pin it to the top of the list.
 
 ## Type Files
 
