@@ -58,7 +58,7 @@ func (ts *Things) NewThing(thingTypeKeys []string) (t Thing, err error) {
 			"---",
 			"title: Thing",
 			fmt.Sprintf("type: # %s", strings.Join(thingTypeKeys, " ")),
-			"priority: 0",
+			"priority: 5",
 			"---",
 			"",
 		}, "\n"))
@@ -133,42 +133,56 @@ func (ts *Things) ResetThings() error {
 	return nil
 }
 
+// priorityGroup returns the group number for a priority value.
+// Priorities 0-4 are individual groups, 5+ are all grouped together as group 5
+func priorityGroup(p int) int {
+	if p < 0 {
+		return 5
+	}
+	if p <= 4 {
+		return p
+	}
+	return 5
+}
+
 func (ts *Things) Sort(s string) {
 
 	if s != "" {
 		ts.sort = s
 	}
 
-	switch ts.sort {
-	case "age":
-		sort.Slice(ts.Things, func(i, j int) bool {
+	// Sort by priority groups (0, 1, 2, 3, 4, 5+) and within each group apply the selected sort
+	sort.Slice(ts.Things, func(i, j int) bool {
+		iGroup := priorityGroup(ts.Things[i].Priority)
+		jGroup := priorityGroup(ts.Things[j].Priority)
+
+		// Different priority groups: sort by group number
+		if iGroup != jGroup {
+			return iGroup < jGroup
+		}
+
+		// Same priority group: apply selected sort mode
+		switch ts.sort {
+		case "age":
 			return ts.Things[i].Path > ts.Things[j].Path
-		})
-	case "priority":
-		sort.Slice(ts.Things, func(i, j int) bool {
-			return ts.Things[i].Priority < ts.Things[j].Priority
-		})
-	case "type":
-		sort.Slice(ts.Things, func(i, j int) bool {
+		case "priority":
+			// Within same group, sort by actual priority value
+			if ts.Things[i].Priority != ts.Things[j].Priority {
+				return ts.Things[i].Priority < ts.Things[j].Priority
+			}
+			return ts.Things[i].Path > ts.Things[j].Path // Secondary sort by age
+		case "type":
 			if ts.Things[i].Type != ts.Things[j].Type {
 				return ts.Things[i].Type < ts.Things[j].Type
 			}
-			return ts.Things[i].Priority < ts.Things[j].Priority
-		})
-	}
-
-	var pinned []Thing
-	var unpinned []Thing
-
-	for _, t := range ts.Things {
-		if t.Pin {
-			pinned = append(pinned, t)
-		} else {
-			unpinned = append(unpinned, t)
+			// Secondary sort by priority within same type
+			if ts.Things[i].Priority != ts.Things[j].Priority {
+				return ts.Things[i].Priority < ts.Things[j].Priority
+			}
+			return ts.Things[i].Path > ts.Things[j].Path // Tertiary sort by age
 		}
-	}
-
-	ts.Things = append(pinned, unpinned...)
+		return false
+	})
 }
 
 func (ts *Things) Search(s string) error {

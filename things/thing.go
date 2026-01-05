@@ -18,7 +18,6 @@ type Thing struct {
 	Done     bool
 	Pause    bool
 	Today    bool
-	Pin      bool
 
 	Content  string
 	Path     string
