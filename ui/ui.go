@@ -102,11 +102,51 @@ func (m *model) setCursorInBounds() {
 	}
 }
 
+// countSeparatorLines counts how many blank separator lines exist between two item indices
+// This matches the rendering logic: no separator before the first rendered item
+func (m *model) countSeparatorLines(start, end int) int {
+	if start >= end || len(m.things.Things) == 0 {
+		return 0
+	}
+
+	count := 0
+	lastRenderedGroup := -1
+
+	for i := start; i <= end && i < len(m.things.Things); i++ {
+		currentGroup := priorityGroup(m.things.Things[i].Priority)
+		// Only count separator if we've rendered a previous item (lastRenderedGroup != -1)
+		// and the group changed
+		if lastRenderedGroup != -1 && currentGroup != lastRenderedGroup {
+			count++
+		}
+		lastRenderedGroup = currentGroup
+	}
+
+	return count
+}
+
 func (m *model) setCursorInView() {
-	if m.cursor > m.viewportHeight()+m.viewport.startAt {
-		m.viewport.startAt = m.cursor - m.viewportHeight()
-	} else if m.cursor < m.viewport.startAt {
+	if m.cursor < m.viewport.startAt {
+		// Scrolling up
 		m.viewport.startAt = m.cursor
+		return
+	}
+
+	// Check if cursor is within visible range (accounting for separators)
+	for {
+		separators := m.countSeparatorLines(m.viewport.startAt, m.cursor)
+		visibleItems := m.viewportHeight() - separators
+
+		if m.cursor <= m.viewport.startAt+visibleItems-1 {
+			// Cursor is visible
+			break
+		}
+
+		// Need to scroll down
+		m.viewport.startAt++
+		if m.viewport.startAt > m.cursor {
+			break
+		}
 	}
 }
 
@@ -117,9 +157,6 @@ func (m *model) viewportHeight() int {
 	}
 	if m.newType.active {
 		h -= 3
-	}
-	if len(m.things.Things) > 0 && m.things.Things[0].Pin {
-		h -= 1
 	}
 	return h
 }

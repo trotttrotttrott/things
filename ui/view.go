@@ -54,6 +54,18 @@ func (m model) confirmDeleteView() string {
 		Render(fmt.Sprintf("Delete %q? [press enter to confirm]", m.confirmDelete.Title))
 }
 
+// priorityGroup returns the group number for a priority value.
+// Priorities 0-4 are individual groups, 5+ are all grouped together as group 5
+func priorityGroup(p int) int {
+	if p < 0 {
+		return 5
+	}
+	if p <= 4 {
+		return p
+	}
+	return 5
+}
+
 func (m model) thingView() string {
 
 	s := ""
@@ -66,13 +78,33 @@ func (m model) thingView() string {
 		s += lipgloss.NewStyle().Faint(true).Render("  No things to show")
 	}
 
+	linesRendered := 0
+	lastRenderedGroup := -1
+
 	for i, t := range m.things.Things {
+
+		currentGroup := priorityGroup(t.Priority)
 
 		if i < m.viewport.startAt {
 			continue
 		}
-		if i > m.viewportHeight()+m.viewport.startAt {
+
+		// Check if we need a blank line separator
+		needsSeparator := lastRenderedGroup != -1 && currentGroup != lastRenderedGroup
+
+		// Check if we have room for both the separator (if needed) and the item
+		linesNeeded := 1
+		if needsSeparator {
+			linesNeeded = 2
+		}
+		if linesRendered+linesNeeded > m.viewportHeight() {
 			return s
+		}
+
+		// Show blank line when priority group changes (only if we rendered the previous group)
+		if needsSeparator {
+			s += "\n"
+			linesRendered++
 		}
 
 		cursor := " "
@@ -115,10 +147,8 @@ func (m model) thingView() string {
 			Bold(t.Today).
 			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s%s", maxTitleLen, ttt, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.Age(), t.TimeString(), deepIndicator))
 		s += "\n"
-
-		if t.Pin && len(m.things.Things) > i-1 && !m.things.Things[i+1].Pin {
-			s += "  ---\n"
-		}
+		linesRendered++
+		lastRenderedGroup = currentGroup
 
 	}
 
