@@ -62,6 +62,7 @@ func Start(thingsDir string) {
 }
 
 func (m *model) searchThings() {
+	m.things.ResetThings()
 	err := m.things.Search(m.search.input.Value())
 	m.errs = append(m.errs, err)
 	m.setCursorInBounds()
