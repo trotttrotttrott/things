@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -94,6 +95,16 @@ func (m *model) maxTypeLen() (mx int) {
 		}
 	}
 	return
+}
+
+func (m *model) maxPriorityLen() int {
+	maxPriority := 0
+	for _, t := range m.things.Things {
+		if t.Priority > maxPriority {
+			maxPriority = t.Priority
+		}
+	}
+	return len(fmt.Sprintf("%d ", maxPriority))
 }
 
 func (m *model) setCursorInBounds() {

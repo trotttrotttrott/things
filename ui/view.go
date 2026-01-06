@@ -131,7 +131,7 @@ func (m model) thingView() string {
 			ttt = fmt.Sprintf("%s...", t.Title[0:maxTitleLen-3])
 		}
 
-		maxPriorityLen := 5
+		maxPriorityLen := m.maxPriorityLen()
 		if len(tpr) > maxPriorityLen {
 			tpr = fmt.Sprintf("%s+", tpr[0:maxPriorityLen-1])
 		}
