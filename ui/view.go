@@ -126,10 +126,63 @@ func (m model) thingView() string {
 			maxTitleLen = maxTitleLen - numWidth - 1
 			s += fmt.Sprintf("%*v ", numWidth, i+1)
 		}
-		ttt, ttp, tpr := t.Title, t.Type, fmt.Sprintf("%d ", t.Priority)
-		if len(t.Title) > maxTitleLen {
-			ttt = fmt.Sprintf("%s...", t.Title[0:maxTitleLen-3])
+
+		// Calculate combined title + note for truncation
+		displayTitle := t.Title
+		noteText := ""
+		if t.Note != "" {
+			noteText = " | " + t.Note
 		}
+		fullLen := len(displayTitle) + len(noteText)
+
+		// Handle truncation treating title + note as one string
+		ttt := t.Title
+		notePart := noteText
+		if fullLen > maxTitleLen {
+			// Truncate the combined string
+			full := displayTitle + noteText
+			truncated := full[0:maxTitleLen-3] + "..."
+
+			// Check if the note delimiter position is within the truncated portion
+			// Use the actual title length rather than searching for " | " to handle titles containing pipes
+			titleLen := len(displayTitle)
+			truncatedLen := maxTitleLen - 3 // Length before adding "..."
+
+			if titleLen < truncatedLen {
+				// Delimiter is in the truncated portion, split at actual title boundary
+				ttt = truncated[0:titleLen]
+				notePart = truncated[titleLen:]
+			} else {
+				// Truncation happened within the title, no note shown
+				ttt = truncated
+				notePart = ""
+			}
+		} else {
+			// Pad to maxTitleLen
+			padding := maxTitleLen - fullLen
+			notePart = noteText + strings.Repeat(" ", padding)
+		}
+
+		// Render title with main style
+		titleStyled := lipgloss.NewStyle().
+			Foreground(lipgloss.Color(m.things.Types[t.Type].Color)).
+			Faint(t.Pause).
+			Bold(t.Today).
+			Render(ttt)
+
+		// Render note with faint style (always faint)
+		noteStyled := ""
+		if notePart != "" {
+			noteStyled = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(m.things.Types[t.Type].Color)).
+				Faint(true).
+				Bold(t.Today).
+				Render(notePart)
+		}
+
+		titleFormatted := titleStyled + noteStyled
+
+		ttp, tpr := t.Type, fmt.Sprintf("%d ", t.Priority)
 
 		maxPriorityLen := m.maxPriorityLen()
 		if len(tpr) > maxPriorityLen {
@@ -141,11 +194,7 @@ func (m model) thingView() string {
 			deepIndicator = " *"
 		}
 
-		s += lipgloss.NewStyle().
-			Foreground(lipgloss.Color(m.things.Types[t.Type].Color)).
-			Faint(t.Pause).
-			Bold(t.Today).
-			Render(fmt.Sprintf("%-*s | %-*v | %*v| %*sd | %s%s", maxTitleLen, ttt, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.Age(), t.TimeString(), deepIndicator))
+		s += fmt.Sprintf("%s | %-*v | %*v| %*sd | %s%s", titleFormatted, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.Age(), t.TimeString(), deepIndicator)
 		s += "\n"
 		linesRendered++
 		lastRenderedGroup = currentGroup
