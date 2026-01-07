@@ -78,6 +78,64 @@ func (m model) thingView() string {
 		s += lipgloss.NewStyle().Faint(true).Render("  No things to show")
 	}
 
+	// Calculate fixed widths for non-title fields
+	// Format: "> TITLE | TYPE | PRIORITY| AGEd | TIME*"
+	cursorWidth := 2 // "> "
+	lineNumWidth := 0
+	if m.lineNum {
+		lineNumWidth = len(fmt.Sprintf("%v ", len(m.things.Things)))
+	}
+
+	maxPriorityLen := m.maxPriorityLen()
+	maxTypeLen := m.maxTypeLen()
+
+	// Calculate max time string width across all things
+	maxTimeWidth := 0
+	for _, t := range m.things.Things {
+		timeStr := t.TimeString()
+		if len(timeStr) > maxTimeWidth {
+			maxTimeWidth = len(timeStr)
+		}
+	}
+
+	// Calculate the fixed width for other fields
+	// " | TYPE | PRIORITY| AGEd | TIME*"
+	// " | " + TYPE + " | " + PRIORITY + "| " + AGE(3) + "d | " + TIME + "*"(maybe)
+	otherFieldsWidth := 3 + maxTypeLen + 3 + maxPriorityLen + 2 + 3 + 4 + maxTimeWidth + 2
+
+	// Calculate available space for title+note
+	availableWidth := m.viewport.width - cursorWidth - lineNumWidth - otherFieldsWidth
+	if availableWidth < 10 {
+		availableWidth = 10 // Minimum reasonable width
+	}
+	maxTitleLen := availableWidth
+
+	// First pass: determine if we need truncation mode or compact mode
+	needsTruncation := false
+	longestLen := 0
+	for _, t := range m.things.Things {
+		displayTitle := t.Title
+		noteText := ""
+		if t.Note != "" {
+			noteText = " | " + t.Note
+		}
+		fullLen := len(displayTitle) + len(noteText)
+
+		if fullLen > maxTitleLen {
+			needsTruncation = true
+			break
+		}
+		if fullLen > longestLen {
+			longestLen = fullLen
+		}
+	}
+
+	// Determine padding length: use maxTitleLen if truncation needed, otherwise longest actual length
+	paddingLen := maxTitleLen
+	if !needsTruncation {
+		paddingLen = longestLen
+	}
+
 	linesRendered := 0
 	lastRenderedGroup := -1
 
@@ -114,16 +172,8 @@ func (m model) thingView() string {
 
 		s += fmt.Sprintf("%s ", cursor)
 
-		maxTitleLen := 35
-		switch {
-		case m.viewport.width > 90:
-			maxTitleLen = 55
-		case m.viewport.width > 80:
-			maxTitleLen = 45
-		}
 		if m.lineNum {
 			numWidth := len(fmt.Sprintf("%v", len(m.things.Things)))
-			maxTitleLen = maxTitleLen - numWidth - 1
 			s += fmt.Sprintf("%*v ", numWidth, i+1)
 		}
 
@@ -158,8 +208,8 @@ func (m model) thingView() string {
 				notePart = ""
 			}
 		} else {
-			// Pad to maxTitleLen
-			padding := maxTitleLen - fullLen
+			// Pad to paddingLen (either maxTitleLen or longest actual length)
+			padding := paddingLen - fullLen
 			notePart = noteText + strings.Repeat(" ", padding)
 		}
 
