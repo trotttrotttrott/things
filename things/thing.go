@@ -13,6 +13,7 @@ import (
 
 type Thing struct {
 	Title    string
+	Note     string
 	Type     string
 	Priority int
 	Done     bool
