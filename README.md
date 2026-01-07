@@ -25,7 +25,25 @@ priority: 5
 Do a thing!
 ```
 
-### Priority
+### Frontmatter
+
+#### Title
+
+Use `title:` to set a thing's title.
+
+#### Note
+
+You can add a `note:` field to provide additional context about the current state
+of a thing. The note is displayed next to the title in faint text:
+
+```
+> Important thing | blocked waiting for other thing
+```
+
+Where "blocked waiting for other thing" is the note. This is useful for tracking
+brief, dynamic information that may change as work progresses.
+
+#### Priority
 
 You can assign things an integer priority value. Things are grouped by priority
 with blank lines between groups:
@@ -34,7 +52,7 @@ with blank lines between groups:
 
 Within each priority group, things are sorted by your chosen sort mode (age/priority/type).
 
-### Done, Pause, Today
+#### Done, Pause, Today
 
 Add `done: true` to a thing to mark it as done. It will be removed from the
 default list.
@@ -46,6 +64,11 @@ Add `today: true` to indicate that thing needs to be addressed today. These will
 be in bold.
 
 You can filter by each of these. This is documented below.
+
+#### Type
+
+Finally, `type:` allows you to categorize things by type. It's value refers to
+the name of a type file which is explained in the next section.
 
 ## Type Files
 
