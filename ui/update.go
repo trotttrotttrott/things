@@ -152,9 +152,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "P":
 			m.things.Filter("pause")
 			m.searchDeactivate()
-		case "T":
-			m.things.Filter("today")
-			m.searchDeactivate()
 
 		// sort
 		case "a":

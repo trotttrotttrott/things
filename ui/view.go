@@ -167,7 +167,6 @@ func (m model) thingView() string {
 		titleStyled := lipgloss.NewStyle().
 			Foreground(lipgloss.Color(m.things.Types[t.Type].Color)).
 			Faint(t.Pause).
-			Bold(t.Today).
 			Render(ttt)
 
 		// Render note with faint style (always faint)
@@ -176,7 +175,6 @@ func (m model) thingView() string {
 			noteStyled = lipgloss.NewStyle().
 				Foreground(lipgloss.Color(m.things.Types[t.Type].Color)).
 				Faint(true).
-				Bold(t.Today).
 				Render(notePart)
 		}
 
@@ -194,7 +192,14 @@ func (m model) thingView() string {
 			deepIndicator = " *"
 		}
 
-		s += fmt.Sprintf("%s | %-*v | %*v| %*sd | %s%s", titleFormatted, m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.Age(), t.TimeString(), deepIndicator)
+		// Apply the same styling to the rest of the row
+		rowStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color(m.things.Types[t.Type].Color)).
+			Faint(t.Pause)
+
+		restOfRow := rowStyle.Render(fmt.Sprintf(" | %-*v | %*v| %*sd | %s%s", m.maxTypeLen(), ttp, maxPriorityLen, tpr, 3, t.Age(), t.TimeString(), deepIndicator))
+
+		s += titleFormatted + restOfRow
 		s += "\n"
 		linesRendered++
 		lastRenderedGroup = currentGroup
@@ -266,8 +271,7 @@ func (m model) helpView() string {
 	s += "  " + key.Render("C") + "       current, done: false (default)\n"
 	s += "  " + key.Render("D") + "       done: true\n"
 	s += "  " + key.Render("A") + "       all, no filter\n"
-	s += "  " + key.Render("P") + "       pause: true\n"
-	s += "  " + key.Render("T") + "       today: true\n\n"
+	s += "  " + key.Render("P") + "       pause: true\n\n"
 
 	s += section.Render("  Sort") + " (\"thing\" mode only)\n"
 	s += "  " + key.Render("a") + "       sort things by age\n"

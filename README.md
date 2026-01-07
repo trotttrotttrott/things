@@ -52,16 +52,13 @@ with blank lines between groups:
 
 Within each priority group, things are sorted by your chosen sort mode (age/priority/type).
 
-#### Done, Pause, Today
+#### Done, Pause
 
 Add `done: true` to a thing to mark it as done. It will be removed from the
 default list.
 
 Add `pause: true` to pause it. This just dims its color a little to indicate you
 can skip it for now.
-
-Add `today: true` to indicate that thing needs to be addressed today. These will
-be in bold.
 
 You can filter by each of these. This is documented below.
 
@@ -138,8 +135,6 @@ D = done: true
 A = all, no filter
 
 P = pause: true
-
-T = today: true
 
 // sort ("thing" mode only)
 

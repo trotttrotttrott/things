@@ -18,7 +18,6 @@ type Thing struct {
 	Priority int
 	Done     bool
 	Pause    bool
-	Today    bool
 
 	Content  string
 	Path     string

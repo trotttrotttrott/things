@@ -116,10 +116,6 @@ func (ts *Things) ResetThings() error {
 			if !t.Pause {
 				continue
 			}
-		case "today":
-			if !t.Today {
-				continue
-			}
 		}
 
 		t.Content = string(rest)
