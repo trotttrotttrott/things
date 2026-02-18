@@ -39,6 +39,39 @@ func New(p string) Things {
 	return t
 }
 
+// wrapTypes wraps type keys into multiple lines with a maximum line length.
+// Each line starts with "# " and contains space-separated type keys.
+func wrapTypes(types []string, maxWidth int) []string {
+	if len(types) == 0 {
+		return []string{"#"}
+	}
+
+	var lines []string
+	var currentLine strings.Builder
+	currentLine.WriteString("#")
+
+	for _, t := range types {
+		// Check if adding this type would exceed maxWidth
+		// +1 for the space separator
+		testLength := currentLine.Len() + 1 + len(t)
+		if currentLine.Len() > 1 && testLength > maxWidth {
+			// Start a new line
+			lines = append(lines, currentLine.String())
+			currentLine.Reset()
+			currentLine.WriteString("#")
+		}
+		currentLine.WriteString(" ")
+		currentLine.WriteString(t)
+	}
+
+	// Add the last line
+	if currentLine.Len() > 1 {
+		lines = append(lines, currentLine.String())
+	}
+
+	return lines
+}
+
 func (ts *Things) NewThing(thingTypeKeys []string) (t Thing, err error) {
 
 	now := time.Now().UTC().Format("20060102150405")
@@ -53,15 +86,16 @@ func (ts *Things) NewThing(thingTypeKeys []string) (t Thing, err error) {
 
 	defer f.Close()
 
-	_, err = f.WriteString(strings.Join(
-		[]string{
-			"---",
-			"title: Thing",
-			fmt.Sprintf("type: # %s", strings.Join(thingTypeKeys, " ")),
-			"priority: 5",
-			"---",
-			"",
-		}, "\n"))
+	typeLines := wrapTypes(thingTypeKeys, 80)
+	templateLines := []string{
+		"---",
+		"title: Thing",
+		"type:",
+	}
+	templateLines = append(templateLines, typeLines...)
+	templateLines = append(templateLines, "priority: 5", "---", "")
+
+	_, err = f.WriteString(strings.Join(templateLines, "\n"))
 
 	if err != nil {
 		return
